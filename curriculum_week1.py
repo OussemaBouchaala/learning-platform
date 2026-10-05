@@ -142,13 +142,13 @@ print(m2.layers)
 """},
     ],
     "tasks": [
-        "Read the Python FAQ entry on shared default values",
+        "Read the [Python FAQ entry on shared default values](https://docs.python.org/3/faq/programming.html#why-are-default-values-shared-between-objects)",
         "Part A: reproduce the items=[] bug, fix it, and show the log_request leak",
         "Part B: aliasing and id(), including b += [5] vs b = b + [5]",
         "Part C: shallow vs deep copy on the config dict",
-        "Part D: predict all 4 puzzles before running; check misses in Python Tutor",
+        "Part D: predict all 4 puzzles before running; check misses in [Python Tutor](https://pythontutor.com/visualize.html#mode=edit)",
         "Notes: explain the mutable default bug in 3-5 lines",
-        "GitHub: commit the new profile README",
+        "GitHub: commit the new [profile README](https://github.com/OussemaBouchaala/OussemaBouchaala) ([how profile READMEs work](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme))",
     ],
     "done_when": "You can predict the output of any default-argument puzzle before running it.",
     "resources": [
@@ -266,7 +266,7 @@ asyncio.run(main())
 """},
     ],
     "tasks": [
-        "Read the FastAPI page on concurrency and async/await",
+        "Read the [FastAPI page on concurrency and async/await](https://fastapi.tiangolo.com/async/)",
         "Build the 4 endpoints in app_async.py and start it with uvicorn",
         "Complete load_test.py; predict the 4 timings, then run",
         "Notes: a table of your measured timings and why each behaves that way",
@@ -368,12 +368,12 @@ with timer("sum"):
 """},
     ],
     "tasks": [
-        "Read the Real Python guides on decorators, generators, and the with statement",
+        "Read the Real Python guides on [decorators](https://realpython.com/primer-on-python-decorators/), [generators](https://realpython.com/introduction-to-python-generators/), and [the with statement](https://realpython.com/python-with-statement/)",
         "decorators.py: @timed and @retry(times=3)",
         "generators.py: compare memory of list vs generator on a 1M-row CSV",
         "contexts.py: class-based and @contextmanager timers; show cleanup on error",
         "Notes: when you'd use each one in an inference service",
-        "GitHub: commit the mmcows-visual README",
+        "GitHub: commit the [mmcows-visual](https://github.com/OussemaBouchaala/mmcows-visual) README",
     ],
     "done_when": "You can write all three from memory.",
     "resources": [
@@ -445,7 +445,7 @@ Plot train and validation scores as the training set grows. If validation keeps 
 """},
     ],
     "tasks": [
-        "Read the ML Crash Course overfitting module and watch StatQuest on bias and variance",
+        "Read the [ML Crash Course overfitting module](https://developers.google.com/machine-learning/crash-course/overfitting) and watch [StatQuest on bias and variance](https://www.youtube.com/watch?v=EuBBz3bI-aA)",
         "poly_fit.py: train vs validation MSE for degrees 1-15, plotted",
         "learning_curves.py: unlimited vs max_depth=3 tree",
         "Notes: given train 99% / val 72%, list the diagnosis and three remedies in order",
@@ -510,11 +510,11 @@ Classifiers output probabilities; 0.5 is just a default. Raising the threshold u
 """},
     ],
     "tasks": [
-        "Read the scikit-learn model evaluation guide; watch StatQuest on ROC and AUC",
+        "Read the [scikit-learn model evaluation guide](https://scikit-learn.org/stable/modules/model_evaluation.html); watch [StatQuest on ROC and AUC](https://www.youtube.com/watch?v=4jRBRDbJemM)",
         "imbalance.py: dummy vs logistic regression on 0.5% positives",
         "threshold.py: precision-recall curve and a threshold for recall >= 0.8",
         "Notes: why accuracy and even ROC-AUC can look good on a useless model",
-        "PFE: start a list of 15-20 target hosts",
+        "PFE: start a list of 15-20 target hosts (search [LinkedIn Jobs](https://www.linkedin.com/jobs/search/?keywords=PFE%20machine%20learning&location=Tunisia))",
     ],
     "done_when": "You can pick the right metric for fraud detection and defend it.",
     "resources": [
@@ -586,12 +586,12 @@ Put every fitted step inside a `Pipeline` and pass the pipeline to cross-validat
 """},
     ],
     "tasks": [
-        "Read scikit-learn's Common pitfalls page (data leakage section)",
+        "Read scikit-learn's [Common pitfalls page (data leakage section)](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage)",
         "leakage_scaler.py: leaky vs Pipeline, for a scaler and for SelectKBest",
         "target_leakage.py: show and explain target leakage",
-        "Rewrite your Real Estate or Fake Reviews notebook with all preprocessing in a Pipeline; push it",
-        "GitHub: update bio, re-pin repos, re-save ECG README as UTF-8, handle mawkoutan",
-        "Optional: Kaggle Learn Intermediate ML, Pipelines and Data Leakage lessons",
+        "Rewrite your [Real Estate](https://github.com/OussemaBouchaala/Appartments_Price_Prediction_Model) or [Fake Reviews](https://github.com/OussemaBouchaala/Fake_Real_Reviews_Classifier) notebook with all preprocessing in a Pipeline; push it",
+        "GitHub: [update bio](https://github.com/settings/profile), [re-pin repos](https://github.com/OussemaBouchaala), re-save [ECG README](https://github.com/OussemaBouchaala/PPP_ECG_Signal_Classification) as UTF-8, handle mawkoutan",
+        "Optional: [Kaggle Learn Intermediate ML](https://www.kaggle.com/learn/intermediate-machine-learning), Pipelines and Data Leakage lessons",
     ],
     "done_when": "Your old notebook has no preprocessing outside a Pipeline.",
     "resources": [
@@ -646,11 +646,11 @@ The naive 70/15/15 split put frames seconds apart into train and test. Those fra
 """},
     ],
     "tasks": [
-        "Read the scikit-learn cross-validation guide (TimeSeriesSplit, GroupKFold)",
+        "Read the [scikit-learn cross-validation guide](https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-of-time-series-data) (TimeSeriesSplit, GroupKFold)",
         "temporal_cv.py: shuffled KFold vs TimeSeriesSplit on an autocorrelated series",
         "Write and record a 2-minute explanation of the 51% MmCows overestimate",
         "Take the Week 1 re-test in the Re-test tab (target 8/10)",
-        "Weekly retro: tick the tracker; send Claude your progress for Week 3's plan",
+        "Weekly retro: tick the tracker; [send Claude](https://claude.ai) your progress for Week 3's plan",
     ],
     "done_when": "8/10 on the re-test. Below 8: redo the missed topics on Mon-Tue of Week 2.",
     "resources": [
