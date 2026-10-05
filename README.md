@@ -36,11 +36,25 @@ Bench runs your code with the Python it was started with, so start it from your 
 1. **Lesson tab:** read, and press **Run snippet** on any Python example to try it.
 2. **Editor:** each day's exercise files open with instructions. Write the code yourself.
 3. **Yellow box:** write your prediction before running. Run stays locked until you do (untick "Predict before running" to turn this off).
-4. **Run** (or Ctrl+Enter): output, errors, and matplotlib plots appear below, next to your prediction.
-5. **Tasks, Quiz, Notes:** tick tasks, take the 3-question check, and write your interview-style answer (saved to `notes.md`).
-6. **Sunday:** the Re-test tab (10 questions, 8 to pass).
+4. **Run** (or Ctrl+Enter): output, errors, and matplotlib plots appear below, next to your prediction. Each line of your prediction is marked ✓ or ✗ against the real output.
+5. **Check** (or Ctrl+Shift+Enter): runs automatic checks on your exercise and lists what's correct and what's missing, with a hint for each miss. A ✓ appears on the file tab once every check passes.
+6. **Tasks, Quiz, Notes:** tick tasks, take the 3-question check, and write your interview-style answer (saved to `notes.md`).
+7. **Sunday:** the Re-test tab (10 questions, 8 to pass).
 
 Ctrl+S saves (it also autosaves). **Reset to starter** restores a file's original instructions.
+
+## Exercises and checks
+
+Each exercise starts as a scaffold: the imports, function names and signatures are written for you, and every `...` marks a part you fill in. Docstrings say what each function must return.
+
+Starters and checks live in `labs/dayNN/`:
+
+```
+labs/day01/defaults.py           starter shown in the editor
+labs/day01/checks/defaults.py    what the Check button verifies
+```
+
+Check imports your file (code under `if __name__ == "__main__":` is skipped), then calls your functions and reads your variables, so keep the names from the starter. Files you started before checks existed keep your code; if a check says a name is missing, save your work elsewhere and press **Reset to starter**. Non-Python files (Dockerfile, YAML, README) are checked as text. See `checker.py` for the helpers a check script can use.
 
 ## Things to know
 
@@ -57,4 +71,4 @@ Weeks 3-12 show their goals and tasks. Each Sunday, tell Claude:
 
 > Week N retro: here's what I finished and what slipped. Give me Week N+1's daily plan for Bench.
 
-You'll get an updated `curriculum.py`. Replace the file and restart Bench. Your progress and code are kept.
+You'll get an updated `curriculum.py` plus that week's `labs/dayNN/` folders (starters and checks). Replace them and restart Bench. Your progress and code are kept.
