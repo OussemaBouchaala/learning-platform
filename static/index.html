@@ -37,7 +37,8 @@ html, body { height: 100%; margin: 0; }
 body {
   font-family: var(--sans); font-size: 15px; line-height: 1.55;
   color: var(--ink); background: var(--paper);
-  display: grid; grid-template-rows: auto 1fr;
+  display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr);
+  overflow-x: hidden;
 }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
@@ -66,7 +67,12 @@ header {
 .stats b { display: block; font-size: 17px; color: var(--ink); font-weight: 600; line-height: 1.2; }
 
 /* Layout */
-main { display: grid; grid-template-columns: 250px minmax(340px, 1fr) minmax(420px, 1.15fr); min-height: 0; }
+main { display: grid; grid-template-columns: 250px minmax(0, 1fr) minmax(0, 1.15fr); min-height: 0; min-width: 0; }
+/* Grid items default to min-width: auto, so a long code line in the editor
+   (CodeMirror sizes itself to its longest line) would push the page wider
+   than the window. min-width: 0 keeps every column inside the viewport and
+   lets the editor/output scroll on their own instead. */
+main > *, header > * { min-width: 0; }
 aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; background: var(--sheet); }
 .wk { padding: 8px 16px 4px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
 .wk small { font-weight: 400; }
@@ -148,11 +154,11 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .notes { width: 100%; min-height: 340px; padding: 14px; font: 14px/1.6 var(--mono); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--sheet); color: var(--ink); resize: vertical; }
 
 /* Workspace */
-.work { display: grid; grid-template-rows: auto minmax(200px, 1fr) auto auto minmax(140px, 0.8fr); min-height: 0; background: var(--sheet); }
+.work { display: grid; grid-template-rows: auto minmax(200px, 1fr) auto auto minmax(140px, 0.8fr); grid-template-columns: minmax(0, 1fr); min-height: 0; background: var(--sheet); }
 .files { display: flex; gap: 0; overflow-x: auto; background: var(--editor); padding: 0 8px; }
 .file { border: 0; background: none; color: rgba(228,234,246,.6); font: 13px var(--mono); padding: 10px 12px; white-space: nowrap; border-bottom: 2px solid transparent; }
 .file[aria-selected="true"] { color: var(--editor-text); border-bottom-color: var(--marker); }
-.editor-wrap { min-height: 0; position: relative; background: var(--editor); }
+.editor-wrap { min-height: 0; min-width: 0; overflow: hidden; position: relative; background: var(--editor); }
 .CodeMirror { height: 100%; font: 13.5px/1.6 var(--mono); background: var(--editor); color: var(--editor-text); }
 .CodeMirror-gutters { background: var(--editor); border-right: 1px solid rgba(255,255,255,.07); }
 .CodeMirror-linenumber { color: rgba(228,234,246,.32); }
@@ -189,7 +195,7 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .stdout, .stderr { margin: 0 0 8px; font: 13px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; }
 .stderr { color: var(--err); }
 .output img, .snippet .out img { max-width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); margin: 6px 0; background: #fff; }
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 10px; }
 .compare div { padding: 8px 10px; border-radius: var(--r-sm); font: 12.5px/1.5 var(--mono); white-space: pre-wrap; max-height: 160px; overflow: auto; }
 .compare .yours { background: #FFF6C7; }
 .compare .actual { background: var(--paper); border: 1px solid var(--line); }
@@ -202,7 +208,7 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .mobile-nav { display: none; }
 
 @media (max-width: 1180px) {
-  main { grid-template-columns: minmax(320px, 1fr) minmax(380px, 1.1fr); }
+  main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
   aside { display: none; }
   .mobile-nav { display: block; padding: 12px 28px 0; }
   .mobile-nav select { width: 100%; padding: 7px; font: inherit; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--sheet); }
@@ -563,7 +569,7 @@ function renderWork() {
 function mountEditor() {
   const wrap = $("#editorWrap");
   if (window.CodeMirror) {
-    S.editor = CodeMirror(wrap, { lineNumbers: true, indentUnit: 4, tabSize: 4, matchBrackets: true,
+    S.editor = CodeMirror(wrap, { lineNumbers: true, lineWrapping: true, indentUnit: 4, tabSize: 4, matchBrackets: true,
       extraKeys: { "Ctrl-Enter": runCurrent, "Cmd-Enter": runCurrent, "Ctrl-S": () => saveFile(true), "Cmd-S": () => saveFile(true),
         Tab: cm => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("    ") } });
     S.editor.on("change", (_, ch) => { if (ch.origin !== "setValue") scheduleSave(); });
