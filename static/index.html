@@ -569,7 +569,7 @@ function renderWork() {
 function mountEditor() {
   const wrap = $("#editorWrap");
   if (window.CodeMirror) {
-    S.editor = CodeMirror(wrap, { lineNumbers: true, indentUnit: 4, tabSize: 4, matchBrackets: true,
+    S.editor = CodeMirror(wrap, { lineNumbers: true, lineWrapping: true, indentUnit: 4, tabSize: 4, matchBrackets: true,
       extraKeys: { "Ctrl-Enter": runCurrent, "Cmd-Enter": runCurrent, "Ctrl-S": () => saveFile(true), "Cmd-S": () => saveFile(true),
         Tab: cm => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("    ") } });
     S.editor.on("change", (_, ch) => { if (ch.origin !== "setValue") scheduleSave(); });
