@@ -33,15 +33,17 @@ Bench runs your code with the Python it was started with, so start it from your 
 
 ## How a day works
 
-1. **Lesson tab:** read, and press **Run snippet** on any Python example to try it.
-2. **Editor:** each day's exercise files open with instructions. Write the code yourself.
-3. **Yellow box:** write your prediction before running. Run stays locked until you do (untick "Predict before running" to turn this off).
-4. **Run** (or Ctrl+Enter): output, errors, and matplotlib plots appear below, next to your prediction. Each line of your prediction is marked ✓ or ✗ against the real output.
-5. **Check** (or Ctrl+Shift+Enter): runs automatic checks on your exercise and lists what's correct and what's missing, with a hint for each miss. A ✓ appears on the file tab once every check passes.
-6. **Tasks, Quiz, Notes:** tick tasks, take the 3-question check, and write your interview-style answer (saved to `notes.md`).
-7. **Sunday:** the Re-test tab (10 questions, 8 to pass).
+Each week is an **arena** and each day a **level**. The header shows the arena (click it for the map of all arenas) and the path of its levels; the step bar below shows where you are in today's level. Play the steps in order, using the Next button at the bottom of each one:
 
-Ctrl+S saves (it also autosaves). **Reset to starter** restores a file's original instructions.
+1. **Learn:** read the lesson on the left. The code editor on the right is a scratchpad: press **Try it in the editor** on any example to run it there, or type your own experiments. Finish with "I've read the lesson".
+2. **Practice:** one exercise at a time. The left side explains the topic, your mission and the steps; the editor on the right holds the starter, guided by comments. Write your prediction in the yellow box, **Run** (Ctrl+Enter) to compare it line by line with the real output, then **Check** (Ctrl+Shift+Enter) to see what's right and what's missing.
+3. **Quiz:** answer from memory; the scratchpad stays open if you want to verify something.
+4. **Boss** (Sundays): the week's re-test, 8/10 to win.
+5. **Missions:** everything that clears the level. Passing labs, writing notes and beating the boss tick their missions for you; tick the rest (reading, GitHub, applications) yourself. Links marked ↗ open where you do them.
+
+**Notes** (button in the step bar) open in a side drawer and save to `notes.md`. Each level has three stars: lesson read, every lab passing, perfect quiz. **Hide ›** folds the editor away when you want the guide wider.
+
+Ctrl+S saves (it also autosaves). **Reset to starter** restores an exercise's original scaffold.
 
 ## Exercises and checks
 
@@ -51,6 +53,7 @@ Starters and checks live in `labs/dayNN/`:
 
 ```
 labs/day01/defaults.py           starter shown in the editor
+labs/day01/briefs/defaults.md    the guided description shown beside it
 labs/day01/checks/defaults.py    what the Check button verifies
 ```
 
