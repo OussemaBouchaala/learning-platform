@@ -23,7 +23,9 @@
   --cobalt: #2650E0;
   --cobalt-soft: #E6ECFD;
   --marker: #FFE066;
+  --gold: #E8A317;
   --ok: #1E8556;
+  --ok-soft: #EAF6EF;
   --err: #C13A2A;
   --editor: #13203A;
   --editor-text: #E4EAF6;
@@ -37,81 +39,101 @@ html, body { height: 100%; margin: 0; }
 body {
   font-family: var(--sans); font-size: 15px; line-height: 1.55;
   color: var(--ink); background: var(--paper);
-  display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr);
-  overflow-x: hidden;
+  display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
 }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
 a { color: var(--cobalt); }
+[hidden] { display: none !important; }
 
-/* Header + roadmap rail */
+/* ---------- Header: arena + level path ---------- */
 header {
-  display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center;
-  padding: 12px 20px; background: var(--sheet); border-bottom: 1px solid var(--line);
+  display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 18px; align-items: center;
+  padding: 10px 20px; background: var(--sheet); border-bottom: 1px solid var(--line); min-width: 0;
 }
 .brand { display: flex; flex-direction: column; line-height: 1.15; }
-.brand strong { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
-.brand span { font-size: 12px; color: var(--ink-soft); }
-.rail { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; min-width: 0; }
-.seg {
-  position: relative; height: 34px; border: 1px solid var(--line); border-radius: var(--r-sm);
-  background: var(--paper); padding: 0; overflow: hidden; text-align: left;
+.brand strong { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.brand span { font-size: 11.5px; color: var(--ink-soft); }
+.arena-btn {
+  display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+  border: 1px solid var(--line); background: var(--paper); border-radius: var(--r-md); padding: 5px 12px; line-height: 1.25;
 }
-.seg .fill { position: absolute; inset: 0 auto 0 0; background: var(--cobalt-soft); transition: width .4s; }
-.seg .lbl { position: relative; display: block; padding: 0 6px; font-size: 11.5px; font-weight: 500; color: var(--ink-soft); line-height: 32px; white-space: nowrap; }
-.seg.phase-start { margin-left: 8px; }
-.seg.current { border-color: var(--cobalt); }
-.seg.current .lbl { color: var(--cobalt); }
-.seg.selected { box-shadow: inset 0 -3px 0 var(--cobalt); }
-.stats { display: flex; gap: 16px; font-size: 13px; color: var(--ink-soft); }
-.stats b { display: block; font-size: 17px; color: var(--ink); font-weight: 600; line-height: 1.2; }
-
-/* Layout */
-main { display: grid; grid-template-columns: 250px minmax(0, 1fr) minmax(0, 1.15fr); min-height: 0; min-width: 0; }
-/* Grid items default to min-width: auto, so a long code line in the editor
-   (CodeMirror sizes itself to its longest line) would push the page wider
-   than the window. min-width: 0 keeps every column inside the viewport and
-   lets the editor/output scroll on their own instead. */
-main > *, header > * { min-width: 0; }
-aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; background: var(--sheet); }
-.wk { padding: 8px 16px 4px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
-.wk small { font-weight: 400; }
-.day {
-  display: grid; grid-template-columns: 22px 1fr; gap: 6px; width: 100%; padding: 7px 16px;
-  border: 0; background: none; text-align: left; font-size: 13.5px;
+.arena-btn:hover { border-color: var(--cobalt); }
+.arena-btn small { font-size: 11px; color: var(--cobalt); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.arena-btn b { font-weight: 500; font-size: 14px; white-space: nowrap; }
+.arena-btn b::after { content: "  \25BE"; color: var(--ink-soft); font-size: 11px; }
+.path { display: flex; align-items: center; min-width: 0; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: thin; }
+.node { display: flex; flex-direction: column; align-items: center; gap: 1px; border: 0; background: none; padding: 0 2px; flex: 0 0 auto; }
+.node .dot {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  border: 2px solid var(--line); background: var(--sheet); font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  transition: transform .15s;
 }
-.day:hover { background: var(--paper); }
-.day.active { background: var(--cobalt-soft); }
-.day .mark { width: 16px; height: 16px; margin-top: 2px; border: 1.5px solid var(--line); border-radius: 50%; display: grid; place-items: center; font-size: 10px; }
-.day.done .mark { background: var(--ok); border-color: var(--ok); color: #fff; }
-.day.today .mark { border-color: var(--cobalt); }
-.day .when { display: block; font-size: 11.5px; color: var(--ink-soft); }
-.locked-row { padding: 6px 16px 6px 44px; font-size: 13px; color: var(--ink-soft); background: none; border: 0; width: 100%; text-align: left; }
-.locked-row:hover { color: var(--ink); }
+.node:hover .dot { transform: scale(1.08); }
+.node .stars { font-size: 9.5px; letter-spacing: 1px; color: var(--line); line-height: 1; height: 10px; }
+.node .stars .on { color: var(--gold); }
+.node.cleared .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+.node.today .dot { border-color: var(--gold); }
+.node.active .dot { border-color: var(--cobalt); color: var(--cobalt); box-shadow: 0 0 0 3px var(--cobalt-soft); }
+.node.active.cleared .dot { color: #fff; }
+.link { width: 22px; height: 2px; background: var(--line); flex: 0 0 auto; margin-bottom: 11px; }
+.link.done { background: var(--ok); }
+.stats { display: flex; gap: 16px; font-size: 12.5px; color: var(--ink-soft); }
+.stats b { display: block; font-size: 16px; color: var(--ink); font-weight: 600; line-height: 1.2; }
 
-/* Lesson pane: graph paper */
-.lesson {
+/* ---------- Step bar ---------- */
+.stepbar {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center;
+  padding: 10px 20px; background: var(--paper); border-bottom: 1px solid var(--line); min-width: 0;
+}
+.level-title { min-width: 0; }
+.level-title small { display: block; font-size: 12px; color: var(--ink-soft); }
+.level-title h1 { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.steps { display: flex; align-items: center; }
+.step {
+  display: flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--sheet);
+  border-radius: 999px; padding: 4px 12px 4px 5px; font-size: 13.5px; color: var(--ink-soft); white-space: nowrap;
+}
+.step .num { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; background: var(--paper); border: 1px solid var(--line); }
+.step .sub { font-size: 11.5px; color: var(--ink-soft); }
+.step.done { color: var(--ok); }
+.step.done .num { background: var(--ok); border-color: var(--ok); color: #fff; }
+.step.next:not(.current) { border-style: dashed; border-color: var(--cobalt); }
+.step.current { color: var(--sheet); background: var(--ink); border-color: var(--ink); }
+.step.current .num { background: var(--sheet); color: var(--ink); border-color: var(--sheet); }
+.step.current .sub { color: rgba(255,255,255,.7); }
+.step-gap { width: 16px; height: 2px; background: var(--line); flex: 0 0 auto; }
+.step-gap.done { background: var(--ok); }
+.icon-btn {
+  display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--sheet);
+  border-radius: var(--r-md); padding: 6px 11px; font-size: 13.5px;
+}
+.icon-btn:hover { border-color: var(--ink-soft); }
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn .dotmark { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+
+/* ---------- Main: guide (left) + workbench (right) ---------- */
+main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) auto; min-height: 0; min-width: 0; }
+main > * { min-width: 0; min-height: 0; }
+.guide {
   overflow-y: auto; border-right: 1px solid var(--line);
   background-color: var(--paper);
   background-image:
-    linear-gradient(rgba(38,80,224,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(38,80,224,.05) 1px, transparent 1px);
+    linear-gradient(rgba(38,80,224,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38,80,224,.045) 1px, transparent 1px);
   background-size: 24px 24px;
 }
-.lesson-head { padding: 22px 28px 0; }
-.lesson-head .meta { font-size: 13px; color: var(--ink-soft); }
-.lesson-head h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 8px; font-weight: 600; letter-spacing: -0.015em; }
-.why { margin: 0 0 14px; padding-left: 12px; border-left: 3px solid var(--cobalt); color: var(--ink-soft); max-width: 68ch; }
-.tabs { display: flex; gap: 2px; padding: 0 28px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--paper); z-index: 2; }
-.tab { border: 0; background: none; padding: 9px 12px; font-size: 14px; color: var(--ink-soft); border-bottom: 2px solid transparent; margin-bottom: -1px; }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
-.tab .count { font-size: 12px; color: var(--ink-soft); margin-left: 4px; }
-.pane { padding: 18px 28px 48px; max-width: 760px; }
+.guide-inner { padding: 20px 28px 40px; max-width: 780px; }
+.kicker { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--cobalt); margin: 0 0 6px; }
+.guide h2.title { font-size: 23px; line-height: 1.25; margin: 0 0 10px; font-weight: 600; letter-spacing: -0.01em; }
+.why { margin: 0 0 18px; padding-left: 12px; border-left: 3px solid var(--cobalt); color: var(--ink-soft); max-width: 68ch; }
 .prose h3 { font-size: 18px; margin: 26px 0 8px; font-weight: 600; }
 .prose h3:first-child { margin-top: 4px; }
 .prose h4 { font-size: 15.5px; margin: 20px 0 6px; }
 .prose p, .prose li { max-width: 68ch; }
 .prose ul, .prose ol { padding-left: 22px; }
+.prose li { margin: 3px 0; }
 .prose code { font-family: var(--mono); font-size: 13px; background: var(--sheet); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
 .snippet { margin: 12px 0 16px; border-radius: var(--r-md); overflow: hidden; background: var(--editor); }
 .snippet > pre { margin: 0; padding: 14px 16px; overflow-x: auto; color: var(--editor-text); font: 13px/1.6 var(--mono); }
@@ -119,20 +141,38 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .snippet-bar { display: flex; justify-content: flex-end; gap: 6px; padding: 6px 8px; background: rgba(255,255,255,.04); border-top: 1px solid rgba(255,255,255,.08); }
 .snippet-bar button { border: 1px solid rgba(255,255,255,.18); background: none; color: var(--editor-text); font-size: 12.5px; padding: 3px 10px; border-radius: var(--r-sm); }
 .snippet-bar button:hover { background: rgba(255,255,255,.08); }
-/* Output of "Run snippet": dark text on the light panel (it used to inherit the code's light color). */
-.snippet .out { background: var(--sheet); border-top: 1px solid var(--line); color: var(--ink); }
-.resources { margin-top: 28px; padding-top: 14px; border-top: 1px dashed var(--line); }
-.resources h3 { font-size: 15px; margin: 0 0 6px; }
-.done-when { margin-top: 18px; padding: 10px 14px; background: var(--sheet); border: 1px solid var(--line); border-radius: var(--r-md); font-size: 14px; }
+.snippet-bar button[data-try] { border-color: rgba(255,224,102,.6); color: var(--marker); }
+.card { margin-top: 18px; padding: 12px 16px; background: var(--sheet); border: 1px solid var(--line); border-radius: var(--r-md); font-size: 14px; }
+.card h3 { font-size: 14.5px; margin: 0 0 6px; }
+.card ul { margin: 0; padding-left: 20px; }
+.next-bar { display: flex; align-items: center; gap: 12px; margin-top: 26px; padding-top: 18px; border-top: 1px dashed var(--line); flex-wrap: wrap; }
+.next-bar .hint { font-size: 13px; color: var(--ink-soft); }
 
-/* Tasks */
+/* Exercise navigator + brief */
+.ex-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.ex-dots { display: flex; gap: 6px; }
+.ex-dot {
+  min-width: 30px; height: 26px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet);
+  font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+}
+.ex-dot.passed { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.ex-dot.current { background: var(--ink); border-color: var(--ink); color: #fff; }
+.ex-count { font-size: 13px; color: var(--ink-soft); }
+.brief h3 { font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 22px 0 6px; }
+.brief ol li::marker { color: var(--cobalt); font-weight: 600; }
+.topic { padding: 10px 14px; background: var(--cobalt-soft); border-radius: var(--r-md); margin: 4px 0; }
+.topic p { margin: 0; }
+
+/* Missions */
 .task { display: grid; grid-template-columns: 24px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
 .task input { width: 17px; height: 17px; margin-top: 3px; accent-color: var(--ok); cursor: pointer; }
-.task.checked span { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: rgba(86,98,126,.5); }
-/* Links in tasks point to something to do outside Bench (docs, GitHub, sign-ups). */
+.task.checked > span { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: rgba(86,98,126,.5); }
 .task a { font-weight: 500; text-underline-offset: 2px; }
 .task a::after { content: "\2197"; font-size: .8em; margin-left: 2px; text-decoration: none; display: inline-block; }
+.task .auto { display: inline-block; margin-left: 6px; font-size: 11.5px; color: var(--ok); }
 .task-legend { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 6px; }
+.cleared-banner { display: flex; gap: 14px; align-items: center; padding: 14px 16px; margin-bottom: 16px; border-radius: var(--r-md); background: var(--ok-soft); border: 1px solid var(--ok); }
+.cleared-banner .big { font-size: 26px; color: var(--gold); letter-spacing: 2px; }
 
 /* Quiz */
 .q { margin: 0 0 22px; }
@@ -141,7 +181,7 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .opt { display: flex; gap: 8px; align-items: flex-start; padding: 7px 10px; margin: 4px 0; background: var(--sheet); border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer; font-size: 14px; }
 .opt input { margin-top: 4px; accent-color: var(--cobalt); }
 .opt code { font-family: var(--mono); font-size: 13px; }
-.opt.right { border-color: var(--ok); background: #EAF6EF; }
+.opt.right { border-color: var(--ok); background: var(--ok-soft); }
 .opt.wrong { border-color: var(--err); background: #FBECEA; }
 .explain { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; }
 .score { padding: 12px 14px; border-radius: var(--r-md); background: var(--sheet); border: 1px solid var(--line); margin-bottom: 18px; }
@@ -153,16 +193,18 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .btn:hover { border-color: var(--ink-soft); }
 .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 500; }
 .btn.primary:hover { background: #24345C; }
+.btn.go { background: var(--cobalt); border-color: var(--cobalt); color: #fff; font-weight: 500; }
+.btn.go:hover { background: #1D41BD; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 
-/* Notes */
-.notes { width: 100%; min-height: 340px; padding: 14px; font: 14px/1.6 var(--mono); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--sheet); color: var(--ink); resize: vertical; }
-
-/* Workspace */
-.work { display: grid; grid-template-rows: auto minmax(200px, 1fr) auto auto minmax(140px, 0.8fr); grid-template-columns: minmax(0, 1fr); min-height: 0; background: var(--sheet); }
-.files { display: flex; gap: 0; overflow-x: auto; background: var(--editor); padding: 0 8px; }
-.file { border: 0; background: none; color: rgba(228,234,246,.6); font: 13px var(--mono); padding: 10px 12px; white-space: nowrap; border-bottom: 2px solid transparent; }
-.file[aria-selected="true"] { color: var(--editor-text); border-bottom-color: var(--marker); }
+/* ---------- Workbench ---------- */
+.bench { display: grid; grid-template-rows: auto minmax(160px, 1fr) auto auto minmax(130px, 0.75fr); grid-template-columns: minmax(0, 1fr); min-height: 0; background: var(--sheet); }
+.bench-head { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 16px; background: var(--editor); color: var(--editor-text); min-width: 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.bench-head .label { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.bench-head .label small { color: rgba(228,234,246,.55); font-weight: 400; margin-left: 8px; }
+.bench-head .chip { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: rgba(255,224,102,.16); color: var(--marker); white-space: nowrap; }
+.bench-head button { border: 1px solid rgba(255,255,255,.18); background: none; color: var(--editor-text); border-radius: var(--r-sm); font-size: 12.5px; padding: 3px 9px; }
+.bench-head button:hover { background: rgba(255,255,255,.08); }
 .editor-wrap { min-height: 0; min-width: 0; overflow: hidden; position: relative; background: var(--editor); }
 .CodeMirror { height: 100%; font: 13.5px/1.6 var(--mono); background: var(--editor); color: var(--editor-text); }
 .CodeMirror-gutters { background: var(--editor); border-right: 1px solid rgba(255,255,255,.07); }
@@ -179,19 +221,17 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .cm-s-default .cm-operator { color: #B9C4DA; }
 .cm-s-default .cm-meta { color: #F7B27A; }
 .fallback-editor { width: 100%; height: 100%; border: 0; padding: 12px 16px; background: var(--editor); color: var(--editor-text); font: 13.5px/1.6 var(--mono); resize: none; }
-
-/* The highlighter: predict before you run */
 .predict { padding: 10px 16px 0; border-top: 1px solid var(--line); }
-.predict label { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.predict label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
 .predict label span { font-weight: 400; color: var(--ink-soft); font-size: 12.5px; }
 .predict textarea {
-  width: 100%; min-height: 54px; max-height: 140px; resize: vertical; padding: 8px 10px;
+  width: 100%; min-height: 50px; max-height: 130px; resize: vertical; padding: 8px 10px;
   font: 13px/1.5 var(--mono); color: var(--ink); border: 0; border-radius: 2px;
-  background: linear-gradient(transparent 0, var(--marker) 0) no-repeat; background-color: #FFF6C7;
-  box-shadow: inset 0 -2px 0 #E8C63A;
+  background-color: #FFF6C7; box-shadow: inset 0 -2px 0 #E8C63A;
 }
 .actions { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.actions .hint { margin-left: auto; font-size: 12.5px; color: var(--ink-soft); }
+.actions .hint { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
+.actions label { font-size: 13px; display: flex; gap: 5px; align-items: center; }
 .save-state { font-size: 12.5px; color: var(--ink-soft); }
 .output { overflow-y: auto; padding: 12px 16px 20px; min-height: 0; }
 .out-meta { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
@@ -199,17 +239,18 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .out-meta .bad { color: var(--err); font-weight: 500; }
 .stdout, .stderr { margin: 0 0 8px; font: 13px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; }
 .stderr { color: var(--err); }
-.output img, .snippet .out img { max-width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); margin: 6px 0; background: #fff; }
+.output img { max-width: 100%; border: 1px solid var(--line); border-radius: var(--r-sm); margin: 6px 0; background: #fff; }
 .compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 10px; }
-.compare div { padding: 8px 10px; border-radius: var(--r-sm); font: 12.5px/1.5 var(--mono); white-space: pre-wrap; max-height: 160px; overflow: auto; }
+.compare > div { padding: 8px 10px; border-radius: var(--r-sm); font: 12.5px/1.5 var(--mono); white-space: pre-wrap; max-height: 160px; overflow: auto; }
 .compare .yours { background: #FFF6C7; }
 .compare .actual { background: var(--paper); border: 1px solid var(--line); }
 .compare b { display: block; font-family: var(--sans); font-size: 12px; margin-bottom: 2px; }
+.match-line { display: block; }
+.match-line.hit::before { content: "\2713  "; color: var(--ok); }
+.match-line.miss::before { content: "\2717  "; color: var(--err); }
+.match-sum { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
 .empty { color: var(--ink-soft); font-size: 14px; }
-
-/* Check results */
-.file .tick { color: #7FD8A6; margin-left: 5px; }
-.checks-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; font-size: 14px; }
+.checks-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; font-size: 14px; flex-wrap: wrap; }
 .checks-head b { font-size: 15px; }
 .checks-head.all b { color: var(--ok); }
 .checks-head.some b { color: var(--err); }
@@ -221,31 +262,65 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .checks .fail .icon { color: var(--err); }
 .checks .hint { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
 .checks .detail { display: block; margin: 4px 0 0; font: 12.5px/1.5 var(--mono); color: var(--err); white-space: pre-wrap; word-break: break-word; }
-.match-line { display: block; }
-.match-line.hit::before { content: "\2713  "; color: var(--ok); }
-.match-line.miss::before { content: "\2717  "; color: var(--err); }
-.match-sum { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
-.locked { padding: 28px; color: var(--ink-soft); max-width: 60ch; }
-.locked code { font-family: var(--mono); font-size: 13px; background: var(--paper); padding: 2px 6px; border-radius: 3px; color: var(--ink); }
-.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 9px 16px; border-radius: var(--r-md); font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
+.bench-rail { display: none; width: 40px; background: var(--editor); border: 0; color: var(--editor-text); writing-mode: vertical-rl; font-size: 13px; padding: 14px 0; letter-spacing: .04em; }
+.bench-rail:hover { background: #1B2B4C; }
+main.bench-collapsed { grid-template-columns: minmax(0, 1fr) 0 auto; }
+main.bench-collapsed .bench { display: none; }
+main.bench-collapsed .bench-rail { display: block; }
+
+/* ---------- Drawers & overlays ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(23,35,64,.35); z-index: 40; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); z-index: 41; background: var(--sheet);
+  box-shadow: -12px 0 32px rgba(23,35,64,.18); display: grid; grid-template-rows: auto 1fr auto;
+}
+.drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--sheet); }
+.drawer-head h2 { margin: 0; font-size: 17px; }
+.drawer-head p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); max-width: 70ch; }
+.drawer textarea { width: 100%; height: 100%; border: 0; padding: 16px 18px; font: 14px/1.6 var(--mono); color: var(--ink); resize: none; }
+.drawer-foot { padding: 8px 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-soft); }
+.map {
+  position: fixed; inset: 4vh 4vw; z-index: 41; background: var(--paper); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 24px 60px rgba(23,35,64,.3); display: grid; grid-template-rows: auto 1fr;
+}
+.map-body { overflow-y: auto; padding: 18px 22px 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; align-content: start; }
+.arena { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; }
+.arena.current { border-color: var(--cobalt); box-shadow: 0 0 0 3px var(--cobalt-soft); }
+.arena.locked { background: transparent; border-style: dashed; }
+.arena small { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+.arena h3 { margin: 2px 0 2px; font-size: 16px; }
+.arena .meta { font-size: 12.5px; color: var(--ink-soft); }
+.arena .bar { height: 6px; background: var(--paper); border-radius: 999px; overflow: hidden; margin: 10px 0; }
+.arena .bar span { display: block; height: 100%; background: var(--ok); }
+.arena .levels { display: flex; flex-wrap: wrap; gap: 6px; }
+.arena .levels .node .dot { width: 34px; height: 34px; }
+.arena ul { margin: 8px 0 0; padding-left: 0; list-style: none; font-size: 13.5px; }
+.arena li { margin: 4px 0; }
+.arena .gate { font-size: 12.5px; margin-top: 8px; color: var(--ink-soft); }
+.locked-copy code { font-family: var(--mono); font-size: 12px; background: var(--paper); padding: 2px 6px; border-radius: 3px; }
+
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 9px 16px; border-radius: var(--r-md); font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 60; }
 .toast.show { opacity: 1; }
-.mobile-nav { display: none; }
+.fatal { padding: 28px; color: var(--ink-soft); max-width: 60ch; }
 
 @media (max-width: 1180px) {
-  main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
-  aside { display: none; }
-  .mobile-nav { display: block; padding: 12px 28px 0; }
-  .mobile-nav select { width: 100%; padding: 7px; font: inherit; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--sheet); }
   .stats { display: none; }
-  header { grid-template-columns: auto 1fr; }
+  header { grid-template-columns: auto auto minmax(0, 1fr); }
+  .stepbar { grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px; }
+  .steps { grid-column: 1 / -1; grid-row: 2; overflow-x: auto; }
+  .step .sub { display: none; }
 }
-@media (max-width: 820px) {
-  body { display: block; }
-  main { display: block; }
-  .lesson { border-right: 0; }
-  .work { height: 92vh; border-top: 1px solid var(--line); }
-  header { grid-template-columns: 1fr; gap: 10px; }
-  .seg .lbl { font-size: 10px; padding: 0 3px; }
+@media (max-width: 860px) {
+  body { display: block; overflow: auto; }
+  header { grid-template-columns: 1fr; gap: 8px; }
+  .brand { display: none; }
+  main, main.bench-collapsed { display: block; }
+  .guide { border-right: 0; overflow: visible; }
+  .bench, main.bench-collapsed .bench { display: grid; height: 88vh; border-top: 1px solid var(--line); }
+  .bench-rail, main.bench-collapsed .bench-rail, #collapseBtn { display: none; }
+  .guide-inner { padding: 18px 16px 32px; }
+  .stepbar, header { padding-left: 16px; padding-right: 16px; }
+  .map { inset: 0; border-radius: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -253,26 +328,38 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 <body>
 <header>
   <div class="brand"><strong>Bench</strong><span>Oussema's 12-week plan</span></div>
-  <nav class="rail" id="rail" aria-label="12-week roadmap"></nav>
+  <button class="arena-btn" id="arenaBtn" title="Open the map of all arenas"><small id="arenaKicker"></small><b id="arenaName"></b></button>
+  <nav class="path" id="path" aria-label="Levels in this arena"></nav>
   <div class="stats" id="stats"></div>
 </header>
-<main>
-  <aside id="sidebar" aria-label="Days"></aside>
-  <section class="lesson" id="lesson"></section>
-  <section class="work" id="work"></section>
+<div class="stepbar" id="stepbar"></div>
+<main id="main">
+  <section class="guide" id="guide" aria-live="polite"></section>
+  <section class="bench" id="bench"></section>
+  <button class="bench-rail" id="benchRail" title="Show the code editor">Code editor ‹</button>
 </main>
+<div id="overlay"></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-const S = { weeks: [], progress: {}, week: 0, day: null, tab: "lesson", file: null, editor: null, quizState: {} };
+/* ======================================================================
+   Bench: each week is an ARENA, each day a LEVEL.
+   A level is played in order: Learn -> Practice -> Quiz -> (Boss) -> Missions.
+   Left = the guide for the current step. Right = the workbench (code editor),
+   always open: a scratchpad while learning, the exercise while practising.
+   ====================================================================== */
+const S = { weeks: [], progress: {}, week: 0, day: null, step: "learn", ex: 0, file: null, fileDay: null, editor: null, quizState: {}, benchCollapsed: false };
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const todayISO = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+const SCRATCH = "scratch.py";
+const SCRATCH_STARTER = "# Scratchpad: type anything here to test an idea while you read.\n# \"Try it in the editor\" on a lesson example puts it here and runs it.\n\n";
+const ICON_NOTE = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3z"/><path d="M10 2.5v3h3M5.5 8.5h5M5.5 11h3.5"/></svg>`;
 
 function toast(msg) {
   const t = $("#toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 1800);
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2400);
 }
 async function api(path, body) {
   const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
@@ -284,7 +371,7 @@ async function api(path, body) {
 const P = () => S.progress;
 function ensureProgress() {
   const p = S.progress;
-  for (const k of ["tasks", "weekTasks", "quiz", "retest", "predictions", "checks"]) p[k] ??= {};
+  for (const k of ["tasks", "weekTasks", "quiz", "retest", "predictions", "checks", "lessons", "notes", "steps"]) p[k] ??= {};
   p.activity ??= []; p.settings ??= { predictFirst: true }; p.last ??= {};
 }
 let saveProgressTimer;
@@ -294,11 +381,15 @@ function saveProgress() {
 }
 function logActivity() {
   const t = todayISO();
-  if (!P().activity.includes(t)) { P().activity.push(t); saveProgress(); renderStats(); }
+  if (!P().activity.includes(t)) { P().activity.push(t); saveProgress(); }
 }
 const allDays = () => S.weeks.flatMap(w => w.days);
 const findDay = id => allDays().find(d => d.id === id);
 const weekOfDay = id => S.weeks.findIndex(w => w.days.some(d => d.id === id));
+const checkKey = (d, name) => `${d.folder}/${name}`;
+const labPassed = (d, f) => { const c = P().checks[checkKey(d, f.name)]; return !!(c && c.passed === c.total); };
+const checkedLabs = d => d.files.filter(f => f.has_check);
+
 function dayDone(d) { const t = P().tasks[d.id] || []; return d.tasks.length > 0 && d.tasks.every((_, i) => t[i]); }
 function weekCounts(w) {
   if (w.days.length) {
@@ -309,12 +400,47 @@ function weekCounts(w) {
   const t = P().weekTasks[w.n] || [];
   return { done: t.filter(Boolean).length, total: w.tasks.length };
 }
+
+/* The steps of a level, in the order they're meant to be played. */
+function stepsOf(d) {
+  const s = [{ key: "learn", label: "Learn" }];
+  if (d.files.length) s.push({ key: "practice", label: "Practice" });
+  if (d.quiz?.length) s.push({ key: "quiz", label: "Quiz" });
+  if (d.retest?.length) s.push({ key: "boss", label: "Boss" });
+  s.push({ key: "missions", label: "Missions" });
+  return s;
+}
+function stepDone(d, key) {
+  if (key === "learn") return !!P().lessons[d.id];
+  if (key === "practice") { const c = checkedLabs(d); return c.length ? c.every(f => labPassed(d, f)) : !!P().steps[d.id]?.practiceSeen; }
+  if (key === "quiz") return !!P().quiz[d.id];
+  if (key === "boss") return (P().retest[d.id]?.best || 0) >= 8;
+  if (key === "missions") return dayDone(d);
+  return false;
+}
+function stepSub(d, key) {
+  if (key === "practice") { const c = checkedLabs(d); return c.length ? `${c.filter(f => labPassed(d, f)).length}/${c.length}` : `${d.files.length}`; }
+  if (key === "quiz") { const q = P().quiz[d.id]; return q ? `${q.best}/${q.total}` : `${d.quiz.length} Qs`; }
+  if (key === "boss") { const r = P().retest[d.id]; return r ? `${r.best}/${r.total}` : "8/10 wins"; }
+  if (key === "missions") { const t = (P().tasks[d.id] || []).filter(Boolean).length; return `${t}/${d.tasks.length}`; }
+  return "";
+}
+const nextStep = d => (stepsOf(d).find(s => !stepDone(d, s.key)) || stepsOf(d).at(-1)).key;
+const stepIndex = (d, key) => stepsOf(d).findIndex(s => s.key === key) + 1;
+
+/* Stars: one for the lesson, one for every lab passing, one for a perfect quiz. */
+function stars(d) {
+  const q = P().quiz[d.id];
+  return [!!P().lessons[d.id], checkedLabs(d).length > 0 && stepDone(d, "practice"), !!(q && q.best === q.total)];
+}
 function xp() {
   let x = 0;
   for (const v of Object.values(P().tasks)) x += v.filter(Boolean).length * 10;
   for (const v of Object.values(P().weekTasks)) x += v.filter(Boolean).length * 10;
   for (const v of Object.values(P().quiz)) x += v.best * 5;
   for (const v of Object.values(P().retest)) x += v.best >= 8 ? 50 : 0;
+  for (const v of Object.values(P().checks)) x += v.passed === v.total ? 20 : 0;
+  x += Object.values(P().lessons).filter(Boolean).length * 10;
   return x;
 }
 function streak() {
@@ -327,7 +453,32 @@ function streak() {
   return n;
 }
 
-/* ---------- Header ---------- */
+/* Missions completed by what you do in Bench: passing labs, writing notes, beating the boss. */
+function syncAutoTasks(d) {
+  const t = P().tasks[d.id] ||= [];
+  const before = dayDone(d);
+  let changed = false;
+  const tick = i => { if (i != null && i < d.tasks.length && !t[i]) { t[i] = true; changed = true; } };
+  const byTask = {};
+  for (const f of d.files) for (const i of f.tasks || []) (byTask[i] ||= []).push(f);
+  for (const [i, files] of Object.entries(byTask)) if (files.every(f => labPassed(d, f))) tick(+i);
+  if ((P().notes[d.id] || 0) >= 40) tick(d.notes_task);
+  if ((P().retest[d.id]?.best || 0) >= 8) tick(d.retest_task);
+  if (changed) { saveProgress(); if (!before && dayDone(d)) celebrate(d); }
+  return changed;
+}
+function autoSource(d, i) {
+  if (d.files.some(f => (f.tasks || []).includes(i))) return "by your lab";
+  if (d.notes_task === i) return "by your notes";
+  if (d.retest_task === i) return "by the boss level";
+  return "";
+}
+function celebrate(d) {
+  const n = stars(d).filter(Boolean).length;
+  toast(`Level cleared: ${d.title}  ${"★".repeat(n)}${"☆".repeat(3 - n)}`);
+}
+
+/* ---------- Header: arena + level path ---------- */
 function currentWeekIndex() {
   const t = todayISO(), days = allDays();
   const exact = days.find(d => d.date === t);
@@ -335,76 +486,75 @@ function currentWeekIndex() {
   if (days.length && t < days[0].date) return 0;
   return Math.max(0, weekOfDay((days.filter(d => d.date <= t).pop() || days[0]).id));
 }
-function renderRail() {
-  const cur = currentWeekIndex();
-  $("#rail").innerHTML = S.weeks.map((w, i) => {
-    const { done, total } = weekCounts(w);
-    const pct = total ? Math.round(100 * done / total) : 0;
-    const phaseStart = i > 0 && w.phase !== S.weeks[i - 1].phase;
-    return `<button class="seg ${i === cur ? "current" : ""} ${i === S.week ? "selected" : ""} ${phaseStart ? "phase-start" : ""}"
-      data-week="${i}" title="Week ${w.n}: ${esc(w.title)} (${w.dates}), ${pct}% done">
-      <span class="fill" style="width:${pct}%"></span><span class="lbl">W${w.n}</span></button>`;
-  }).join("");
-  $("#rail").onclick = e => { const b = e.target.closest(".seg"); if (b) selectWeek(+b.dataset.week); };
+function levelNode(d, n) {
+  const st = stars(d), t = todayISO();
+  const cls = ["node", dayDone(d) ? "cleared" : "", S.day?.id === d.id ? "active" : "", d.date === t ? "today" : ""].join(" ");
+  return `<button class="${cls}" data-day="${d.id}" title="Level ${n}: ${esc(d.title)} · ${d.weekday} ${d.date.slice(5).replace("-", "/")} · ${st.filter(Boolean).length}/3 stars">
+    <span class="dot">${dayDone(d) ? "✓" : n}</span><span class="stars">${st.map(s => `<span class="${s ? "on" : ""}">★</span>`).join("")}</span></button>`;
 }
-function renderStats() {
+function renderHeader() {
+  const w = S.weeks[S.week];
+  $("#arenaKicker").textContent = `Arena ${w.n} · ${w.phase}`;
+  $("#arenaName").textContent = w.title;
+  $("#path").innerHTML = w.days.map((d, i) => (i ? `<span class="link ${dayDone(w.days[i - 1]) ? "done" : ""}"></span>` : "") + levelNode(d, i + 1)).join("");
+  $("#path").onclick = e => { const b = e.target.closest(".node"); if (b) selectDay(b.dataset.day); };
   let done = 0, total = 0;
-  for (const w of S.weeks) { const c = weekCounts(w); done += c.done; total += c.total; }
-  $("#stats").innerHTML = `
-    <div><b>${streak()} day${streak() === 1 ? "" : "s"}</b>streak</div>
-    <div><b>${xp()}</b>XP</div>
+  for (const wk of S.weeks) { const c = weekCounts(wk); done += c.done; total += c.total; }
+  const s = streak();
+  $("#stats").innerHTML = `<div><b>${s} day${s === 1 ? "" : "s"}</b>streak</div><div><b>${xp()}</b>XP</div>
     <div><b>${total ? Math.round(100 * done / total) : 0}%</b>of the plan</div>`;
-  renderRail();
+  $("#path .active")?.scrollIntoView({ block: "nearest", inline: "center" });
 }
 
-/* ---------- Sidebar ---------- */
-function renderSidebar() {
-  const t = todayISO();
-  let html = "";
-  S.weeks.forEach((w, i) => {
-    html += `<div class="wk">Week ${w.n}: ${esc(w.title)} <small>${w.dates}</small></div>`;
-    if (w.days.length) {
-      for (const d of w.days) {
-        const cls = [S.day?.id === d.id ? "active" : "", dayDone(d) ? "done" : "", d.date === t ? "today" : ""].join(" ");
-        html += `<button class="day ${cls}" data-day="${d.id}"><span class="mark">${dayDone(d) ? "✓" : ""}</span>
-          <span>${esc(d.title)}<span class="when">${d.weekday} ${d.date.slice(5).replace("-", "/")}</span></span></button>`;
-      }
-    } else {
-      html += `<button class="locked-row" data-week="${i}">Weekly goals</button>`;
-    }
-  });
-  $("#sidebar").innerHTML = html;
-  $("#sidebar").onclick = e => {
-    const d = e.target.closest(".day"); if (d) return selectDay(d.dataset.day);
-    const w = e.target.closest(".locked-row"); if (w) selectWeek(+w.dataset.week);
-  };
-}
-function mobileNav() {
-  const opts = S.weeks.map((w, i) => w.days.length
-    ? w.days.map(d => `<option value="d:${d.id}" ${S.day?.id === d.id ? "selected" : ""}>W${w.n} ${d.weekday}: ${esc(d.title)}</option>`).join("")
-    : `<option value="w:${i}" ${!S.day && S.week === i ? "selected" : ""}>W${w.n}: ${esc(w.title)}</option>`).join("");
-  return `<div class="mobile-nav"><select id="mnav" aria-label="Choose a day">${opts}</select></div>`;
-}
-function bindMobileNav() {
-  const m = $("#mnav"); if (!m) return;
-  m.onchange = () => { const [k, v] = m.value.split(":"); k === "d" ? selectDay(v) : selectWeek(+v); };
+/* ---------- Step bar ---------- */
+function renderStepbar() {
+  const d = S.day, w = S.weeks[S.week], n = w.days.indexOf(d) + 1, steps = stepsOf(d), next = nextStep(d);
+  const hasNotes = (P().notes[d.id] || 0) > 0;
+  $("#stepbar").innerHTML = `
+    <div class="level-title"><small>Level ${n} of ${w.days.length} · ${d.weekday} ${d.date.slice(5).replace("-", "/")} · about ${d.minutes} min</small><h1>${esc(d.title)}</h1></div>
+    <nav class="steps" aria-label="Steps of this level">${steps.map((s, i) => {
+      const done = stepDone(d, s.key), sub = stepSub(d, s.key);
+      return (i ? `<span class="step-gap ${stepDone(d, steps[i - 1].key) ? "done" : ""}"></span>` : "") +
+        `<button class="step ${done ? "done" : ""} ${S.step === s.key ? "current" : ""} ${next === s.key ? "next" : ""}" data-step="${s.key}" aria-current="${S.step === s.key ? "step" : "false"}">
+          <span class="num">${done ? "✓" : i + 1}</span>${s.label}${sub ? `<span class="sub">${sub}</span>` : ""}</button>`;
+    }).join("")}</nav>
+    <button class="icon-btn" id="notesBtn" title="Your notes for this level, saved to notes.md">${ICON_NOTE}Notes${hasNotes ? `<span class="dotmark"></span>` : ""}</button>`;
+  $("#stepbar .steps").onclick = e => { const b = e.target.closest(".step"); if (b) goStep(b.dataset.step); };
+  $("#notesBtn").onclick = openNotes;
 }
 
 /* ---------- Navigation ---------- */
-function selectWeek(i) {
-  S.week = i;
-  const w = S.weeks[i];
-  if (w.days.length) {
-    const t = todayISO();
-    return selectDay((w.days.find(d => d.date === t) || w.days.find(d => !dayDone(d)) || w.days[0]).id);
-  }
-  S.day = null; renderSidebar(); renderRail(); renderLockedWeek(w);
-}
-function selectDay(id) {
-  S.day = findDay(id); S.week = weekOfDay(id); S.tab = "lesson"; S.quizState = {};
+function selectDay(id, step) {
+  S.day = findDay(id); S.week = weekOfDay(id); S.quizState = {};
+  syncAutoTasks(S.day);
+  S.step = step || P().steps[id]?.last || nextStep(S.day);
+  if (!stepsOf(S.day).some(s => s.key === S.step)) S.step = "learn";
+  S.ex = Math.min(P().steps[id]?.ex || 0, Math.max(0, S.day.files.length - 1));
   P().last.day = id; saveProgress();
-  renderSidebar(); renderRail(); renderLesson(); renderWork();
+  closeOverlay(); renderAll();
 }
+function goStep(key) {
+  S.step = key; S.quizState = {};
+  const st = P().steps[S.day.id] ||= {};
+  st.last = key;
+  if (key === "practice") st.practiceSeen = true;
+  saveProgress(); renderAll();
+  $("#guide").scrollTop = 0;
+}
+function goNext() {
+  const steps = stepsOf(S.day), i = steps.findIndex(s => s.key === S.step);
+  if (i < steps.length - 1) return goStep(steps[i + 1].key);
+  const days = S.weeks[S.week].days, j = days.indexOf(S.day);
+  if (j < days.length - 1) return selectDay(days[j + 1].id, "learn");
+  openMap();
+}
+function nextLabel() {
+  const steps = stepsOf(S.day), i = steps.findIndex(s => s.key === S.step);
+  if (i < steps.length - 1) return `Next: ${steps[i + 1].label} →`;
+  const days = S.weeks[S.week].days, j = days.indexOf(S.day);
+  return j < days.length - 1 ? `Next level: ${days[j + 1].title} →` : "Open the map →";
+}
+function renderAll() { renderHeader(); renderStepbar(); renderGuide(); syncBench(); }
 
 /* ---------- Markdown ---------- */
 function inline(s) {
@@ -421,10 +571,9 @@ function md(src) {
     html += blocks(parts[i]);
     if (i + 2 < parts.length) {
       const lang = parts[i + 1], code = parts[i + 2].replace(/\n$/, "");
-      const runnable = lang === "python";
       html += `<div class="snippet"><pre><code>${esc(code)}</code></pre><div class="snippet-bar">
-        <button data-copy>Copy</button>${runnable ? "<button data-run>Run snippet</button>" : ""}</div>
-        <div class="out" hidden></div><textarea hidden>${esc(code)}</textarea></div>`;
+        <button data-copy>Copy</button>${lang === "python" ? `<button data-try title="Put it in the scratchpad on the right and run it">Try it in the editor →</button>` : ""}</div>
+        <textarea hidden>${esc(code)}</textarea></div>`;
     }
   }
   return html;
@@ -446,74 +595,82 @@ function blocks(text) {
   flushP(); flushL(); return out.join("");
 }
 
-/* ---------- Lesson pane ---------- */
-function renderLesson() {
-  const d = S.day, w = S.weeks[S.week];
-  const tasksDone = (P().tasks[d.id] || []).filter(Boolean).length;
-  const q = P().quiz[d.id];
-  const tabs = [["lesson", "Lesson", ""], ["tasks", "Tasks", `${tasksDone}/${d.tasks.length}`], ["quiz", "Quiz", q ? `${q.best}/${q.total}` : ""], ["notes", "Notes", ""]];
-  if (d.retest) { const r = P().retest[d.id]; tabs.push(["retest", "Re-test", r ? `${r.best}/${r.total}` : ""]); }
-  $("#lesson").innerHTML = `
-    ${mobileNav()}
-    <div class="lesson-head">
-      <div class="meta">Week ${w.n}, ${d.weekday} ${d.date.slice(5).replace("-", "/")}. About ${d.minutes} minutes.</div>
-      <h1>${esc(d.title)}</h1>
-      <p class="why">${inline(d.why)}</p>
-    </div>
-    <div class="tabs" role="tablist">${tabs.map(([k, label, c]) =>
-      `<button class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${label}${c ? `<span class="count">${c}</span>` : ""}</button>`).join("")}</div>
-    <div class="pane" id="pane"></div>`;
-  $(".tabs").onclick = e => { const t = e.target.closest(".tab"); if (t) { S.tab = t.dataset.tab; renderLesson(); } };
-  bindMobileNav();
-  ({ lesson: paneLesson, tasks: paneTasks, quiz: () => paneQuiz("quiz"), retest: () => paneQuiz("retest"), notes: paneNotes })[S.tab]();
+/* ---------- Guide (left) ---------- */
+function renderGuide() {
+  $("#guide").onclick = null; $("#guide").onchange = null;
+  ({ learn: guideLearn, practice: guidePractice, quiz: () => guideQuiz("quiz"), boss: () => guideQuiz("boss"), missions: guideMissions })[S.step]();
 }
-function paneLesson() {
-  const d = S.day;
-  const res = d.resources.length ? `<div class="resources"><h3>Resources</h3><ul>${d.resources.map(r => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.label)}</a></li>`).join("")}</ul></div>` : "";
-  $("#pane").className = "pane prose";
-  $("#pane").innerHTML = md(d.lesson) + `<div class="done-when"><strong>Done when:</strong> ${inline(d.done_when)}</div>` + res;
-  $("#pane").onclick = async e => {
+function nextBar(hint, label, primary = true) {
+  return `<div class="next-bar"><button class="btn ${primary ? "go" : ""}" id="nextBtn">${label}</button>${hint ? `<span class="hint">${hint}</span>` : ""}</div>`;
+}
+
+function guideLearn() {
+  const d = S.day, read = !!P().lessons[d.id];
+  const res = d.resources.length ? `<div class="card"><h3>Go deeper</h3><ul>${d.resources.map(r => `<li><a href="${r.url}" target="_blank" rel="noopener">${esc(r.label)}</a></li>`).join("")}</ul></div>` : "";
+  $("#guide").innerHTML = `<div class="guide-inner prose">
+    <p class="kicker">Step 1 · Learn</p>
+    <p class="why">${inline(d.why)}</p>
+    ${md(d.lesson)}
+    <div class="card"><strong>By the end of this level:</strong> ${inline(d.done_when)}</div>${res}
+    ${nextBar(read ? "" : "Tip: “Try it in the editor” runs any example in the scratchpad on the right.",
+      read ? nextLabel() : "I've read the lesson · Practice →")}
+  </div>`;
+  $("#guide").onclick = async e => {
     const snip = e.target.closest(".snippet"); if (!snip) return;
     const code = snip.querySelector("textarea").value;
     if (e.target.matches("[data-copy]")) { await navigator.clipboard.writeText(code).catch(() => {}); toast("Copied"); }
-    if (e.target.matches("[data-run]")) {
-      const out = snip.querySelector(".out"); out.hidden = false; out.innerHTML = `<div class="output"><div class="empty">Running…</div></div>`;
-      try { const r = await api("/api/run", { day: S.day.folder, name: null, code }); out.innerHTML = `<div class="output">${renderResult(r)}</div>`; logActivity(); }
-      catch (err) { out.innerHTML = `<div class="output"><pre class="stderr">${esc(err.message)}</pre></div>`; }
-    }
+    if (e.target.matches("[data-try]")) tryInScratch(code);
+  };
+  $("#nextBtn").onclick = () => {
+    if (!read) { P().lessons[d.id] = true; saveProgress(); logActivity(); toast("Lesson complete ★"); }
+    goNext();
   };
 }
-function paneTasks() {
-  const d = S.day, t = P().tasks[d.id] ||= [];
-  $("#pane").className = "pane";
-  const external = d.tasks.some(x => /\]\(https?:/.test(x));
-  $("#pane").innerHTML = (external ? `<p class="task-legend">Links marked ↗ open the page where you do that task (new tab).</p>` : "") + d.tasks.map((task, i) =>
-    `<label class="task ${t[i] ? "checked" : ""}"><input type="checkbox" data-i="${i}" ${t[i] ? "checked" : ""}><span>${inline(task)}</span></label>`).join("")
-    + `<div class="done-when"><strong>Done when:</strong> ${inline(d.done_when)}</div>`;
-  $("#pane").onchange = e => {
-    const i = +e.target.dataset.i; t[i] = e.target.checked;
-    e.target.closest(".task").classList.toggle("checked", t[i]);
-    saveProgress(); logActivity(); renderStats(); renderSidebar();
-    if (dayDone(d)) toast("Day complete. Nice work.");
-    const c = $('.tab[data-tab="tasks"] .count'); if (c) c.textContent = `${t.filter(Boolean).length}/${d.tasks.length}`;
-  };
+
+function guidePractice() {
+  const d = S.day, f = d.files[S.ex];
+  const dots = d.files.map((x, i) => `<button class="ex-dot ${i === S.ex ? "current" : ""} ${labPassed(d, x) ? "passed" : ""}" data-ex="${i}" title="${esc(x.title)}">${labPassed(d, x) && i !== S.ex ? "✓" : i + 1}</button>`).join("");
+  const lines = (f.brief || "").split("\n");
+  const hasTopic = lines[0]?.startsWith("**Topic:**");
+  const topic = hasTopic ? `<div class="topic">${blocks(lines[0])}</div>` : "";
+  const body = hasTopic ? lines.slice(1).join("\n") : f.brief;
+  const last = S.ex === d.files.length - 1, passed = labPassed(d, f);
+  $("#guide").innerHTML = `<div class="guide-inner prose brief">
+    <p class="kicker">Step 2 · Practice</p>
+    <div class="ex-nav"><div class="ex-dots">${dots}</div><span class="ex-count">Exercise ${S.ex + 1} of ${d.files.length}</span></div>
+    <h2 class="title">${esc(f.title)}</h2>
+    ${topic}${body ? md(body) : `<p>Follow the comments in the editor.</p>`}
+    <div class="card">${f.has_check
+      ? (passed ? "<strong>✓ All checks pass.</strong> On to the next one." : "Fill in each <code>...</code> in the editor, <strong>Run</strong> to see it work, then <strong>Check</strong> to see what's right and what's missing.")
+      : "No automatic checks here: follow the steps, then move on."}</div>
+    ${nextBar(last ? (stepDone(d, "practice") ? "" : "You can move on and come back to unfinished labs any time.") : "",
+      last ? nextLabel() : `Next exercise: ${esc(d.files[S.ex + 1].title)} →`, passed || !f.has_check)}
+  </div>`;
+  $(".ex-dots").onclick = e => { const b = e.target.closest(".ex-dot"); if (b) selectExercise(+b.dataset.ex); };
+  $("#nextBtn").onclick = () => last ? goNext() : selectExercise(S.ex + 1);
 }
-function paneQuiz(kind) {
-  const d = S.day, qs = kind === "retest" ? d.retest : d.quiz, store = kind === "retest" ? P().retest : P().quiz;
+function selectExercise(i) {
+  S.ex = i; (P().steps[S.day.id] ||= {}).ex = i; saveProgress();
+  guidePractice(); syncBench(); $("#guide").scrollTop = 0;
+}
+
+function guideQuiz(kind) {
+  const d = S.day, boss = kind === "boss";
+  const qs = boss ? d.retest : d.quiz, store = boss ? P().retest : P().quiz;
   const st = S.quizState[kind] ||= { answers: {}, submitted: false, order: qs.map(q => shuffle(q.options.map((_, j) => j))) };
   const prev = store[d.id];
-  $("#pane").className = "pane";
-  let head = "";
-  if (kind === "retest") head = `<p class="why">Ten new questions on Week 1. Score 8 or more to validate Month 1 and unlock Phase 1.</p>`;
+  let head = `<p class="kicker">Step ${stepIndex(d, kind)} · ${boss ? "Boss level" : "Quiz"}</p>`;
+  head += boss ? `<h2 class="title">Arena ${S.weeks[S.week].n} boss</h2><p class="why">Ten new questions on the whole week. Score 8 or more to win the arena.</p>`
+               : `<p class="why">Answer from memory first. The editor on the right is there if you want to verify an idea.</p>`;
   if (st.submitted) {
     const score = qs.filter((q, i) => st.answers[i] === q.answer).length;
-    const pass = kind !== "retest" || score >= 8;
-    head += `<div class="score ${pass ? "pass" : "fail"}"><strong>${score}/${qs.length}.</strong> ${kind === "retest"
-      ? (pass ? "Month 1 validated. Phase 1 is open." : "Not yet. Redo the topics you missed on Mon-Tue of Week 2, then retake it.")
-      : score === qs.length ? "All correct." : "Read the explanations for the ones you missed."}
+    const pass = !boss || score >= 8;
+    head += `<div class="score ${pass ? "pass" : "fail"}"><strong>${score}/${qs.length}.</strong> ${boss
+      ? (pass ? "Boss defeated. The next phase is open." : "Not yet. Redo the topics you missed, then try again.")
+      : score === qs.length ? "Perfect: that's a star ★" : "Read the explanations for the ones you missed."}
       <button class="btn" id="retake" style="margin-left:8px">Retake</button></div>`;
   } else if (prev) head += `<p class="empty">Best so far: ${prev.best}/${prev.total}</p>`;
-  $("#pane").innerHTML = head + qs.map((q, i) => {
+  $("#guide").innerHTML = `<div class="guide-inner">${head}${qs.map((q, i) => {
     const [first, ...rest] = q.q.split("\n");
     const qtext = rest.length ? `${inline(first)}<pre>${esc(rest.join("\n"))}</pre>` : inline(q.q);
     return `<div class="q"><div class="q-text">${i + 1}. ${qtext}</div>${st.order[i].map(j => {
@@ -521,86 +678,109 @@ function paneQuiz(kind) {
       if (st.submitted) cls = j === q.answer ? "right" : st.answers[i] === j ? "wrong" : "";
       return `<label class="opt ${cls}"><input type="radio" name="q${i}" value="${j}" ${st.answers[i] === j ? "checked" : ""} ${st.submitted ? "disabled" : ""}><span>${inline(o)}</span></label>`;
     }).join("")}${st.submitted ? `<div class="explain">${inline(q.explain)}</div>` : ""}</div>`;
-  }).join("") + (st.submitted ? "" : `<button class="btn primary" id="submitQuiz">Check answers</button>`);
-  $("#pane").onchange = e => { if (e.target.name) st.answers[+e.target.name.slice(1)] = +e.target.value; };
+  }).join("")}
+  ${st.submitted ? nextBar("", nextLabel()) : `<button class="btn primary" id="submitQuiz">Check answers</button>`}</div>`;
+  $("#guide").onchange = e => { if (e.target.name) st.answers[+e.target.name.slice(1)] = +e.target.value; };
   $("#submitQuiz")?.addEventListener("click", () => {
     if (Object.keys(st.answers).length < qs.length) return toast(`Answer all ${qs.length} questions first`);
     st.submitted = true;
     const score = qs.filter((q, i) => st.answers[i] === q.answer).length;
     const rec = store[d.id] ||= { best: 0, total: qs.length, attempts: 0 };
     rec.best = Math.max(rec.best, score); rec.attempts++; rec.last = score;
-    saveProgress(); logActivity(); renderStats(); renderLesson();
-    $("#lesson").scrollTop = 0;
+    saveProgress(); logActivity(); syncAutoTasks(d);
+    renderHeader(); renderStepbar(); renderGuide();
+    $("#guide").scrollTop = 0;
   });
-  $("#retake")?.addEventListener("click", () => { delete S.quizState[kind]; renderLesson(); });
-}
-async function paneNotes() {
-  const d = S.day;
-  $("#pane").className = "pane";
-  $("#pane").innerHTML = `<p class="empty">Saved to <code>${d.folder}/notes.md</code>. Write answers as if an interviewer asked.</p>
-    <textarea class="notes" id="notes" placeholder="In 3-5 lines: ..."></textarea><div class="save-state" id="notesState"></div>`;
-  const r = await api(`/api/file?day=${d.folder}&name=notes.md`);
-  const ta = $("#notes"); ta.value = r.content; let timer;
-  ta.oninput = () => {
-    $("#notesState").textContent = "Saving…"; clearTimeout(timer);
-    timer = setTimeout(async () => { await api("/api/file", { day: d.folder, name: "notes.md", content: ta.value }); $("#notesState").textContent = "Saved"; logActivity(); }, 600);
-  };
+  $("#retake")?.addEventListener("click", () => { delete S.quizState[kind]; renderGuide(); });
+  $("#nextBtn")?.addEventListener("click", goNext);
 }
 
-/* ---------- Locked week ---------- */
-function renderLockedWeek(w) {
-  const t = P().weekTasks[w.n] ||= [];
-  $("#lesson").innerHTML = `${mobileNav()}<div class="lesson-head"><div class="meta">${w.phase}, ${w.dates}</div>
-    <h1>Week ${w.n}: ${esc(w.title)}</h1><p class="why">${inline(w.goal)}</p></div>
-    <div class="pane">${w.tasks.map((task, i) => `<label class="task ${t[i] ? "checked" : ""}"><input type="checkbox" data-i="${i}" ${t[i] ? "checked" : ""}><span>${inline(task)}</span></label>`).join("")}
-    <div class="done-when"><strong>Gate:</strong> ${inline(w.gate)}</div></div>`;
-  $("#lesson .pane").onchange = e => {
-    const i = +e.target.dataset.i; t[i] = e.target.checked;
-    e.target.closest(".task").classList.toggle("checked", t[i]); saveProgress(); renderStats();
+function guideMissions() {
+  const d = S.day, t = P().tasks[d.id] ||= [];
+  const external = d.tasks.some(x => /\]\(https?:/.test(x));
+  const cleared = dayDone(d), st = stars(d);
+  $("#guide").innerHTML = `<div class="guide-inner">
+    <p class="kicker">Step ${stepsOf(d).length} · Missions</p>
+    ${cleared ? `<div class="cleared-banner"><span class="big">${st.map(s => s ? "★" : "☆").join("")}</span>
+      <div><strong>Level cleared.</strong><br><span class="empty">Stars: lesson read · every lab passing · perfect quiz.</span></div></div>` : ""}
+    <p class="why">Everything that clears this level. Labs, notes and the boss tick their missions for you; tick the rest yourself.</p>
+    ${external ? `<p class="task-legend">Links marked ↗ open the page where you do that mission (new tab).</p>` : ""}
+    <div id="taskList">${d.tasks.map((task, i) => {
+      const src = autoSource(d, i);
+      return `<label class="task ${t[i] ? "checked" : ""}"><input type="checkbox" data-i="${i}" ${t[i] ? "checked" : ""}><span>${inline(task)}${src && t[i] ? `<span class="auto">✓ ${src}</span>` : ""}</span></label>`;
+    }).join("")}</div>
+    <div class="card"><strong>Done when:</strong> ${inline(d.done_when)}</div>
+    ${nextBar(cleared ? "" : "Unfinished missions can wait: come back any time.", nextLabel(), cleared)}
+  </div>`;
+  $("#taskList").onchange = e => {
+    const i = +e.target.dataset.i, before = dayDone(d); t[i] = e.target.checked;
+    saveProgress(); logActivity();
+    if (!before && dayDone(d)) celebrate(d);
+    renderHeader(); renderStepbar(); guideMissions();
   };
-  bindMobileNav();
-  $("#work").innerHTML = `<div class="locked"><h2 style="color:var(--ink);font-size:18px">Daily lessons for this week arrive after your Sunday retro</h2>
-    <p>The plan is written one week at a time so it follows your real pace. On Sunday, tell Claude:</p>
-    <p><code>Week ${w.n - 1} retro: here's what I finished and what slipped. Give me Week ${w.n}'s daily plan for Bench.</code></p>
-    <p>Claude will send an updated <code>curriculum.py</code>. Replace the file and restart Bench.</p></div>`;
+  $("#nextBtn").onclick = goNext;
 }
 
-/* ---------- Workspace ---------- */
-function renderWork() {
-  const d = S.day;
-  const remembered = P().last.file && d.files.find(f => f.name === P().last.file);
-  S.file = (remembered || d.files[0])?.name;
-  $("#work").innerHTML = `
-    <div class="files" role="tablist">${d.files.map(f => `<button class="file" role="tab" data-file="${f.name}" aria-selected="${f.name === S.file}">${f.name}${checkTick(d, f)}</button>`).join("")}</div>
+/* ---------- Workbench (right) ---------- */
+function benchTarget() {
+  if (S.step === "practice" && S.day.files.length) return { name: S.day.files[S.ex].name, lab: S.day.files[S.ex] };
+  return { name: SCRATCH, lab: null };
+}
+function renderBenchShell() {
+  $("#bench").innerHTML = `
+    <div class="bench-head"><span class="chip" id="benchChip"></span><span class="label" id="benchLabel"></span>
+      <button id="collapseBtn" title="Hide the editor to give the guide more room">Hide ›</button></div>
     <div class="editor-wrap" id="editorWrap"></div>
-    <div class="predict" id="predictBox"><label for="predict">Your prediction <span>Write what you expect before you run</span></label>
+    <div class="predict" id="predictBox"><label for="predict">Your prediction <span>What will it print? Each line is compared after Run</span></label>
       <textarea id="predict" placeholder="Expected output, error, or timing…"></textarea></div>
     <div class="actions">
       <button class="btn primary" id="runBtn">Run</button>
-      <button class="btn" id="checkBtn" title="Run the automatic checks for this exercise (Ctrl+Shift+Enter)">Check</button>
-      <button class="btn" id="resetBtn">Reset to starter</button>
-      <label style="font-size:13px;display:flex;gap:5px;align-items:center"><input type="checkbox" id="pf" ${P().settings.predictFirst ? "checked" : ""}>Predict before running</label>
+      <button class="btn" id="checkBtn" title="Run the automatic checks (Ctrl+Shift+Enter)">Check</button>
+      <button class="btn" id="resetBtn">Reset</button>
+      <label id="pfWrap"><input type="checkbox" id="pf">Predict first</label>
       <span class="save-state" id="saveState"></span>
-      <span class="hint">Ctrl+Enter runs, Ctrl+Shift+Enter checks. Files save to ${d.folder}/</span>
+      <span class="hint" id="benchHint"></span>
     </div>
-    <div class="output" id="output"><div class="empty">Output appears here. Write a prediction first: comparing it with the real output is where the learning happens.
-      When you think your code is done, press <b>Check</b> to see what's right and what's missing.</div></div>`;
-  $(".files").onclick = e => { const b = e.target.closest(".file"); if (b) openFile(b.dataset.file); };
+    <div class="output" id="output"></div>`;
   $("#runBtn").onclick = runCurrent;
   $("#checkBtn").onclick = checkCurrent;
   $("#resetBtn").onclick = resetFile;
+  $("#collapseBtn").onclick = () => setBenchCollapsed(true);
+  $("#benchRail").onclick = () => setBenchCollapsed(false);
   $("#pf").onchange = e => { P().settings.predictFirst = e.target.checked; saveProgress(); updateRunState(); };
-  $("#predict").oninput = e => { P().predictions[`${d.folder}/${S.file}`] = e.target.value; saveProgress(); updateRunState(); };
+  $("#predict").oninput = e => { P().predictions[`${S.day.folder}/${S.file}`] = e.target.value; saveProgress(); updateRunState(); };
   mountEditor();
-  openFile(S.file);
+}
+function setBenchCollapsed(v) {
+  S.benchCollapsed = v; P().settings.benchCollapsed = v; saveProgress();
+  $("#main").classList.toggle("bench-collapsed", v);
+  if (!v) setTimeout(() => S.editor?.refresh(), 0);
+}
+async function syncBench() {
+  const { name, lab } = benchTarget();
+  const isPyLab = !!lab && name.endsWith(".py");
+  $("#benchChip").textContent = lab ? `Exercise ${S.ex + 1}` : "Scratchpad";
+  $("#benchLabel").innerHTML = lab ? `${esc(lab.title)}<small>follow the comments</small>` : `Test any idea here<small>not graded</small>`;
+  $("#benchHint").textContent = lab ? (name.endsWith(".py") ? "Ctrl+Enter runs · Ctrl+Shift+Enter checks" : "Check reads this file") : "Ctrl+Enter runs";
+  $("#pfWrap").hidden = !isPyLab;
+  $("#pf").checked = !!P().settings.predictFirst;
+  $("#predictBox").hidden = !isPyLab;
+  $("#resetBtn").textContent = lab ? "Reset to starter" : "Clear";
+  if (S.file !== name || S.fileDay !== S.day.folder) {
+    await openFile(name, lab);
+    $("#output").innerHTML = `<div class="empty">${lab
+      ? (name.endsWith(".py") ? "Write a prediction, press <b>Run</b>, then <b>Check</b> to see what's right and what's missing." : "Edit the file, then press <b>Check</b>.")
+      : "Scratchpad output appears here."}</div>`;
+  }
+  updateRunState();
 }
 function mountEditor() {
   const wrap = $("#editorWrap");
   if (window.CodeMirror) {
     S.editor = CodeMirror(wrap, { lineNumbers: true, lineWrapping: true, indentUnit: 4, tabSize: 4, matchBrackets: true,
-      extraKeys: { "Ctrl-Enter": runCurrent, "Cmd-Enter": runCurrent, "Ctrl-S": () => saveFile(true), "Cmd-S": () => saveFile(true),
+      extraKeys: { "Ctrl-Enter": runCurrent, "Cmd-Enter": runCurrent, "Shift-Ctrl-Enter": checkCurrent, "Shift-Cmd-Enter": checkCurrent,
+        "Ctrl-S": () => saveFile(true), "Cmd-S": () => saveFile(true),
         Tab: cm => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("    ") } });
-    S.editor.addKeyMap({ "Shift-Ctrl-Enter": checkCurrent, "Shift-Cmd-Enter": checkCurrent });
     S.editor.on("change", (_, ch) => { if (ch.origin !== "setValue") scheduleSave(); });
   } else {
     const ta = document.createElement("textarea"); ta.className = "fallback-editor"; ta.spellcheck = false; wrap.appendChild(ta);
@@ -613,50 +793,57 @@ function mountEditor() {
   }
 }
 const modeFor = n => n.endsWith(".py") ? "python" : /\.ya?ml$/.test(n) ? "yaml" : n.endsWith(".json") ? { name: "javascript", json: true } : n.endsWith(".md") ? "markdown" : null;
-async function openFile(name) {
-  S.file = name; P().last.file = name; saveProgress();
-  document.querySelectorAll(".file").forEach(b => b.setAttribute("aria-selected", b.dataset.file === name));
-  const f = S.day.files.find(x => x.name === name);
+async function openFile(name, lab) {
+  await flushSave();
+  S.file = name; S.fileDay = S.day.folder;
   const r = await api(`/api/file?day=${S.day.folder}&name=${encodeURIComponent(name)}`);
-  const content = r.content.trim() ? r.content : f.starter;
+  const content = r.content.trim() ? r.content : lab ? lab.starter : SCRATCH_STARTER;
   S.editor.setOption("mode", modeFor(name));
   S.editor.setValue(content);
-  if (!r.content.trim()) await api("/api/file", { day: S.day.folder, name, content });
+  if (!r.content.trim() && lab) await api("/api/file", { day: S.day.folder, name, content });
   setTimeout(() => S.editor.refresh(), 0);
-  const isPy = name.endsWith(".py");
-  $("#predictBox").hidden = !isPy;
   $("#predict").value = P().predictions[`${S.day.folder}/${name}`] || "";
-  $("#saveState").textContent = r.content.trim() ? "Loaded your file" : "Starter written to disk";
-  updateRunState();
+  $("#saveState").textContent = "";
+  $("#saveState").title = `Saved to ${S.day.folder}/${name} in your lab folder`;
 }
 function updateRunState() {
+  const { lab } = benchTarget();
   const isPy = S.file?.endsWith(".py");
-  const needPred = P().settings.predictFirst && !$("#predict").value.trim();
+  const needPred = !!lab && isPy && P().settings.predictFirst && !$("#predict").value.trim();
   const btn = $("#runBtn");
   btn.disabled = !isPy || needPred;
-  btn.title = !isPy ? "Only Python files run here" : needPred ? "Write a prediction first (or untick 'Predict before running')" : "Run (Ctrl+Enter)";
-  const f = S.day.files.find(x => x.name === S.file);
-  $("#checkBtn").hidden = !f?.has_check;
+  btn.title = !isPy ? "This isn't a Python file: use Check" : needPred ? "Write a prediction first (or untick 'Predict first')" : "Run (Ctrl+Enter)";
+  $("#checkBtn").hidden = !lab?.has_check;
 }
-let saveTimer;
-function scheduleSave() { $("#saveState").textContent = "Unsaved"; clearTimeout(saveTimer); saveTimer = setTimeout(saveFile, 700); }
+let saveTimer, savePending = false;
+function scheduleSave() { savePending = true; $("#saveState").textContent = "Unsaved"; clearTimeout(saveTimer); saveTimer = setTimeout(saveFile, 700); }
+async function flushSave() { if (savePending) await saveFile(); }
 async function saveFile(announce) {
-  clearTimeout(saveTimer);
-  try { await api("/api/file", { day: S.day.folder, name: S.file, content: S.editor.getValue() }); $("#saveState").textContent = "Saved"; if (announce === true) toast("Saved"); }
+  clearTimeout(saveTimer); savePending = false;
+  if (!S.file) return;
+  try { await api("/api/file", { day: S.fileDay, name: S.file, content: S.editor.getValue() }); $("#saveState").textContent = "Saved"; if (announce === true) toast("Saved"); }
   catch (e) { $("#saveState").textContent = "Save failed: " + e.message; }
 }
 async function resetFile() {
-  if (!confirm(`Replace ${S.file} with the starter? Your current code in this file will be lost.`)) return;
-  const f = S.day.files.find(x => x.name === S.file);
-  S.editor.setValue(f.starter); await saveFile(); toast("Reset to starter");
+  const { lab } = benchTarget();
+  if (lab) {
+    if (!confirm("Replace this exercise with the starter? Your current code in it will be lost.")) return;
+    S.editor.setValue(lab.starter); await saveFile(); toast("Reset to starter");
+  } else { S.editor.setValue(SCRATCH_STARTER); await saveFile(); }
+}
+async function tryInScratch(code) {
+  if (S.benchCollapsed) setBenchCollapsed(false);
+  S.editor.setValue(code + "\n"); await saveFile();
+  runCurrent();
 }
 async function runCurrent() {
-  const btn = $("#runBtn"); if (btn.disabled) { if (!S.file.endsWith(".py")) return; return toast("Write your prediction first"); }
+  const btn = $("#runBtn"); if (btn.disabled) { if (!S.file?.endsWith(".py")) return; return toast("Write your prediction first"); }
   btn.disabled = true; btn.textContent = "Running…";
-  $("#output").innerHTML = `<div class="empty">Running ${esc(S.file)}…</div>`;
+  $("#output").innerHTML = `<div class="empty">Running…</div>`;
   try {
     const r = await api("/api/run", { day: S.day.folder, name: S.file, code: S.editor.getValue() });
-    const pred = $("#predict").value.trim();
+    savePending = false;
+    const pred = benchTarget().lab ? $("#predict").value.trim() : "";
     $("#output").innerHTML = (pred ? compareHTML(pred, r) : "") + renderResult(r, !!pred);
     $("#saveState").textContent = "Saved"; logActivity();
   } catch (e) { $("#output").innerHTML = `<pre class="stderr">${esc(e.message)}\nIs the Bench server still running in your terminal?</pre>`; }
@@ -670,7 +857,6 @@ function renderResult(r, compared) {
     ${r.images.map(b => `<img alt="Plot from your script" src="data:image/png;base64,${b}">`).join("")}
     ${!r.stdout && !r.stderr && !r.images.length ? `<div class="empty">No output. Add print() calls to see results.</div>` : ""}`;
 }
-
 /* Prediction vs output, line by line: whitespace-insensitive, so "[1,2]" matches "[1, 2]". */
 function compareHTML(pred, r) {
   const norm = l => l.replace(/\s+/g, "");
@@ -682,33 +868,89 @@ function compareHTML(pred, r) {
   return `<div class="compare"><div class="yours"><b>You predicted</b>${yours}${sum}</div>
     <div class="actual"><b>Actual output</b>${esc(actual || (r.stderr ? "(error, see below)" : "(no output)"))}</div></div>`;
 }
-
-/* ---------- Checks ---------- */
-const checkKey = (d, name) => `${d.folder}/${name}`;
-function checkTick(d, f) {
-  const c = f.has_check && P().checks[checkKey(d, f.name)];
-  return c && c.passed === c.total ? `<span class="tick" title="All checks passed">✓</span>` : "";
-}
 async function checkCurrent() {
-  const f = S.day.files.find(x => x.name === S.file); if (!f?.has_check) return;
-  const btn = $("#checkBtn"); btn.disabled = true; btn.textContent = "Checking…";
-  $("#output").innerHTML = `<div class="empty">Checking ${esc(S.file)}…</div>`;
+  const { lab } = benchTarget(); if (!lab?.has_check) return;
+  const d = S.day, btn = $("#checkBtn"); btn.disabled = true; btn.textContent = "Checking…";
+  $("#output").innerHTML = `<div class="empty">Checking…</div>`;
   try {
-    const r = await api("/api/check", { day: S.day.folder, name: S.file, code: S.editor.getValue() });
+    const r = await api("/api/check", { day: d.folder, name: lab.name, code: S.editor.getValue() });
+    savePending = false;
     const passed = r.results.filter(c => c.ok).length, total = r.results.length, all = passed === total;
-    P().checks[checkKey(S.day, S.file)] = { passed, total, at: new Date().toISOString() };
+    const wasPassed = labPassed(d, lab);
+    P().checks[checkKey(d, lab.name)] = { passed, total, at: new Date().toISOString() };
     saveProgress(); logActivity();
     $("#output").innerHTML = `<div class="checks-head ${all ? "all" : "some"}"><b>${passed}/${total} checks passed</b>
       <span>${all ? "Everything checked is correct." : "Fix the first ✗ and check again."}</span><span class="out-meta">${r.seconds}s</span></div>
       <ul class="checks">${r.results.map(c => `<li class="${c.ok ? "pass" : "fail"}"><span class="icon">${c.ok ? "✓" : "✗"}</span>
         <span>${inline(c.label)}${!c.ok && c.hint ? `<span class="hint">${inline(c.hint)}</span>` : ""}${!c.ok && c.detail ? `<span class="detail">${esc(c.detail)}</span>` : ""}</span></li>`).join("")}</ul>`;
-    const tab = document.querySelector(`.file[data-file="${CSS.escape(S.file)}"]`);
-    if (tab) tab.innerHTML = esc(S.file) + checkTick(S.day, f);
     $("#saveState").textContent = "Saved";
-    if (all) toast("All checks passed");
+    syncAutoTasks(d);
+    if (all !== wasPassed) { renderHeader(); renderStepbar(); guidePractice(); }
+    if (all && !wasPassed) toast(stepDone(d, "practice") ? "Every lab passes: practice star ★" : "Exercise complete ✓");
   } catch (e) { $("#output").innerHTML = `<pre class="stderr">${esc(e.message)}\nIs the Bench server still running in your terminal?</pre>`; }
   btn.disabled = false; btn.textContent = "Check";
 }
+
+/* ---------- Notes drawer ---------- */
+async function openNotes() {
+  const d = S.day;
+  $("#overlay").innerHTML = `<div class="scrim" data-close></div><aside class="drawer" role="dialog" aria-label="Notes">
+    <div class="drawer-head"><div><h2>Notes · ${esc(d.title)}</h2><p>Write it like an interviewer asked. Saved to ${d.folder}/notes.md</p></div>
+      <button class="btn" data-close>Close</button></div>
+    <textarea id="notes" placeholder="In 3-5 lines: …"></textarea>
+    <div class="drawer-foot" id="notesState">Loading…</div></aside>`;
+  bindOverlayClose();
+  const r = await api(`/api/file?day=${d.folder}&name=notes.md`);
+  const ta = $("#notes"); if (!ta) return;
+  ta.value = r.content; ta.focus();
+  $("#notesState").textContent = r.content ? "Saved" : "Optional, but writing a few lines clears the notes mission.";
+  let timer;
+  ta.oninput = () => {
+    $("#notesState").textContent = "Saving…"; clearTimeout(timer);
+    timer = setTimeout(async () => {
+      await api("/api/file", { day: d.folder, name: "notes.md", content: ta.value });
+      P().notes[d.id] = ta.value.trim().length; saveProgress(); logActivity();
+      if ($("#notesState")) $("#notesState").textContent = "Saved";
+      syncAutoTasks(d);
+      if (S.day === d) { renderHeader(); renderStepbar(); if (S.step === "missions") guideMissions(); }
+    }, 600);
+  };
+}
+
+/* ---------- Arena map ---------- */
+function openMap() {
+  const cur = currentWeekIndex();
+  $("#overlay").innerHTML = `<div class="scrim" data-close></div><section class="map" role="dialog" aria-label="Map of arenas">
+    <div class="drawer-head"><div><h2>The map</h2>
+      <p>Each week is an arena and each day a level. Clear a level by finishing its missions; earn its three stars by reading the lesson, passing every lab and acing the quiz.</p></div>
+      <button class="btn" data-close>Close</button></div>
+    <div class="map-body">${S.weeks.map((w, i) => {
+      const { done, total } = weekCounts(w), pct = total ? Math.round(100 * done / total) : 0;
+      if (!w.days.length) {
+        const t = P().weekTasks[w.n] || [];
+        return `<div class="arena locked"><small>Arena ${w.n} · ${w.phase} · ${w.dates}</small><h3>${esc(w.title)}</h3>
+          <div class="meta">${inline(w.goal)}</div>
+          <ul>${w.tasks.map((task, j) => `<li><label><input type="checkbox" data-week="${w.n}" data-i="${j}" ${t[j] ? "checked" : ""}> ${inline(task)}</label></li>`).join("")}</ul>
+          <div class="gate"><strong>Gate:</strong> ${inline(w.gate)}</div>
+          <div class="gate locked-copy">Levels unlock after your Sunday retro. Tell Claude: <code>Week ${w.n - 1} retro: here's what I finished and what slipped. Give me Week ${w.n}'s daily plan for Bench.</code></div></div>`;
+      }
+      const got = w.days.reduce((n, d) => n + stars(d).filter(Boolean).length, 0);
+      return `<div class="arena ${i === S.week ? "current" : ""}"><small>Arena ${w.n} · ${w.phase} · ${w.dates}${i === cur ? " · this week" : ""}</small>
+        <h3>${esc(w.title)}</h3><div class="meta">${w.days.filter(dayDone).length}/${w.days.length} levels cleared · ${got}/${w.days.length * 3} ★</div>
+        <div class="bar"><span style="width:${pct}%"></span></div>
+        <div class="levels">${w.days.map((d, j) => levelNode(d, j + 1)).join("")}</div>
+        <div class="gate"><strong>Gate:</strong> ${inline(w.gate)}</div></div>`;
+    }).join("")}</div></section>`;
+  bindOverlayClose();
+  $(".map-body").onclick = e => { const b = e.target.closest(".node"); if (b) selectDay(b.dataset.day); };
+  $(".map-body").onchange = e => {
+    const n = e.target.dataset.week; if (!n) return;
+    (P().weekTasks[n] ||= [])[+e.target.dataset.i] = e.target.checked; saveProgress(); renderHeader();
+  };
+}
+function bindOverlayClose() { $("#overlay").onclick = e => { if (e.target.closest("[data-close]")) closeOverlay(); }; }
+function closeOverlay() { $("#overlay").innerHTML = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overlay").innerHTML) closeOverlay(); });
 
 /* ---------- Boot ---------- */
 (async function init() {
@@ -716,12 +958,14 @@ async function checkCurrent() {
     const [cur, prog] = await Promise.all([api("/api/curriculum"), api("/api/progress")]);
     S.weeks = cur.weeks; S.progress = prog; ensureProgress();
   } catch (e) {
-    document.body.innerHTML = `<div class="locked"><h2>Bench can't reach its server</h2><p>Start it from your terminal with <code>python server.py</code>, then reload this page.</p></div>`;
+    document.body.innerHTML = `<div class="fatal"><h2>Bench can't reach its server</h2><p>Start it from your terminal with <code>python server.py</code>, then reload this page.</p></div>`;
     return;
   }
-  renderStats();
+  $("#arenaBtn").onclick = openMap;
+  renderBenchShell();
+  if (P().settings.benchCollapsed) setBenchCollapsed(true);
   const t = todayISO();
-  const pick = allDays().find(d => d.date === t) || (P().last.day && findDay(P().last.day)) || allDays().find(d => !dayDone(d)) || allDays()[0];
+  const pick = (P().last.day && findDay(P().last.day)) || allDays().find(d => d.date === t) || allDays().find(d => !dayDone(d)) || allDays()[0];
   selectDay(pick.id);
 })();
 </script>
