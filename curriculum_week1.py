@@ -515,7 +515,7 @@ The naive 70/15/15 split put frames seconds apart into train and test. Those fra
         "Read the [scikit-learn cross-validation guide](https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-of-time-series-data) (TimeSeriesSplit, GroupKFold)",
         "temporal_cv.py: shuffled KFold vs TimeSeriesSplit on an autocorrelated series",
         "Write and record a 2-minute explanation of the 51% MmCows overestimate",
-        "Take the Week 1 re-test in the Re-test tab (target 8/10)",
+        "Beat the Week 1 boss: the re-test after the quiz (target 8/10)",
         "Weekly retro: tick the tracker; [send Claude](https://claude.ai) your progress for Week 3's plan",
     ],
     "done_when": "8/10 on the re-test. Below 8: redo the missed topics on Mon-Tue of Week 2.",
