@@ -61,7 +61,7 @@ Check imports your file (code under `if __name__ == "__main__":` is skipped), th
 - **Servers:** Day 2 and Week 2 have FastAPI apps. Run those in a separate terminal with `uvicorn` (the lesson shows the command); Bench stops any script after 60 seconds. Change the limit with the `RUN_TIMEOUT` environment variable.
 - **Internet:** the code editor and fonts load from a CDN. Offline, Bench falls back to a plain text editor; everything else still works.
 - **Your files are never overwritten:** starter code is only written to files that are missing or empty.
-- **Progress** lives in `bench/progress.json`. Back it up if you like.
+- **Progress** lives in `bench/progress.local.json`, which git ignores, so switching branches or pulling never touches it. On first start it carries over anything in the old `progress.json`. Back it up if you like.
 - **Different lab location:** set `LAB_DIR` before starting, e.g. `set LAB_DIR=D:\code\ml-fundamentals-lab` (Windows) or `export LAB_DIR=...` (Mac/Linux).
 - **Safety:** Bench listens only on 127.0.0.1 and runs the code you write on your own machine. Don't expose it to a network.
 
