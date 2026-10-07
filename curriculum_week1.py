@@ -4,7 +4,7 @@ Exercise starters and checks live in labs/dayNN/ (see lab_files.py)."""
 from lab_files import lab
 
 DAY1 = {
-    "id": "w1d1", "folder": "day01", "date": "2026-10-05", "weekday": "Mon",
+    "id": "w1d1", "folder": "day01", "notes_task": 5, "date": "2026-10-05", "weekday": "Mon",
     "title": "Mutable defaults and references", "minutes": 75,
     "why": "You missed Q1. Python passes references to objects, and default arguments are created once.",
     "lesson": """
@@ -76,10 +76,10 @@ print(d)
 ```
 """,
     "files": [
-        lab("day01", "defaults.py"),
-        lab("day01", "aliasing.py"),
-        lab("day01", "copies.py"),
-        lab("day01", "puzzles.py"),
+        lab("day01", "defaults.py", task=1),
+        lab("day01", "aliasing.py", task=2),
+        lab("day01", "copies.py", task=3),
+        lab("day01", "puzzles.py", task=4),
     ],
     "tasks": [
         "Read the [Python FAQ entry on shared default values](https://docs.python.org/3/faq/programming.html#why-are-default-values-shared-between-objects)",
@@ -106,7 +106,7 @@ print(d)
 }
 
 DAY2 = {
-    "id": "w1d2", "folder": "day02", "date": "2026-10-06", "weekday": "Tue",
+    "id": "w1d2", "folder": "day02", "notes_task": 3, "date": "2026-10-06", "weekday": "Tue",
     "title": "Async and the event loop in FastAPI", "minutes": 75,
     "why": "You missed Q2, and your services run on FastAPI. Blocking the loop is a real production bug.",
     "lesson": """
@@ -166,8 +166,8 @@ uvicorn app_async:app --port 8001
 ```
 """,
     "files": [
-        lab("day02", "app_async.py"),
-        lab("day02", "load_test.py"),
+        lab("day02", "app_async.py", task=1),
+        lab("day02", "load_test.py", task=2),
     ],
     "tasks": [
         "Read the [FastAPI page on concurrency and async/await](https://fastapi.tiangolo.com/async/)",
@@ -191,7 +191,7 @@ uvicorn app_async:app --port 8001
 }
 
 DAY3 = {
-    "id": "w1d3", "folder": "day03", "date": "2026-10-07", "weekday": "Wed",
+    "id": "w1d3", "folder": "day03", "notes_task": 4, "date": "2026-10-07", "weekday": "Wed",
     "title": "Generators, decorators, context managers", "minutes": 75,
     "why": "Standard interview territory, and all three show up in ML and API code.",
     "lesson": """
@@ -256,9 +256,9 @@ with timer("sum"):
 ```
 """,
     "files": [
-        lab("day03", "decorators.py"),
-        lab("day03", "generators.py"),
-        lab("day03", "contexts.py"),
+        lab("day03", "decorators.py", task=1),
+        lab("day03", "generators.py", task=2),
+        lab("day03", "contexts.py", task=3),
     ],
     "tasks": [
         "Read the Real Python guides on [decorators](https://realpython.com/primer-on-python-decorators/), [generators](https://realpython.com/introduction-to-python-generators/), and [the with statement](https://realpython.com/python-with-statement/)",
@@ -286,7 +286,7 @@ with timer("sum"):
 }
 
 DAY4 = {
-    "id": "w1d4", "folder": "day04", "date": "2026-10-08", "weekday": "Thu",
+    "id": "w1d4", "folder": "day04", "notes_task": 3, "date": "2026-10-08", "weekday": "Thu",
     "title": "Overfitting, bias and variance", "minutes": 75,
     "why": "You missed Q3. Read the train/validation gap, not the absolute scores.",
     "lesson": """
@@ -327,8 +327,8 @@ For **bias**: add capacity or better features, reduce regularization, train long
 Plot train and validation scores as the training set grows. If validation keeps rising toward train, more data will help (variance). If both plateau low and close together, more data won't help (bias).
 """,
     "files": [
-        lab("day04", "poly_fit.py"),
-        lab("day04", "learning_curves.py"),
+        lab("day04", "poly_fit.py", task=1),
+        lab("day04", "learning_curves.py", task=2),
     ],
     "tasks": [
         "Read the [ML Crash Course overfitting module](https://developers.google.com/machine-learning/crash-course/overfitting) and watch [StatQuest on bias and variance](https://www.youtube.com/watch?v=EuBBz3bI-aA)",
@@ -352,7 +352,7 @@ Plot train and validation scores as the training set grows. If validation keeps 
 }
 
 DAY5 = {
-    "id": "w1d5", "folder": "day05", "date": "2026-10-09", "weekday": "Fri",
+    "id": "w1d5", "folder": "day05", "notes_task": 3, "date": "2026-10-09", "weekday": "Fri",
     "title": "Metrics for imbalanced data", "minutes": 75,
     "why": "You missed Q4. The MmCows Drinking class (F1 around 0.05) is the same problem in your own work.",
     "lesson": """
@@ -384,8 +384,8 @@ print("f1", f1_score(y_true, y_pred, zero_division=0))
 Classifiers output probabilities; 0.5 is just a default. Raising the threshold usually raises precision and lowers recall. Pick it from the cost of each error: missing fraud costs more than a false alarm.
 """,
     "files": [
-        lab("day05", "imbalance.py"),
-        lab("day05", "threshold.py"),
+        lab("day05", "imbalance.py", task=1),
+        lab("day05", "threshold.py", task=2),
     ],
     "tasks": [
         "Read the [scikit-learn model evaluation guide](https://scikit-learn.org/stable/modules/model_evaluation.html); watch [StatQuest on ROC and AUC](https://www.youtube.com/watch?v=4jRBRDbJemM)",
@@ -452,8 +452,8 @@ A feature that is only known after, or because of, the label. Example: predictin
 Put every fitted step inside a `Pipeline` and pass the pipeline to cross-validation. Each fold then fits preprocessing on its own training part only. For SMOTE, use `imblearn.pipeline.Pipeline`.
 """,
     "files": [
-        lab("day06", "leakage_scaler.py"),
-        lab("day06", "target_leakage.py"),
+        lab("day06", "leakage_scaler.py", task=1),
+        lab("day06", "target_leakage.py", task=2),
     ],
     "tasks": [
         "Read scikit-learn's [Common pitfalls page (data leakage section)](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage)",
@@ -479,7 +479,7 @@ Put every fitted step inside a `Pipeline` and pass the pipeline to cross-validat
 }
 
 DAY7 = {
-    "id": "w1d7", "folder": "day07", "date": "2026-10-11", "weekday": "Sun",
+    "id": "w1d7", "folder": "day07", "retest_task": 3, "date": "2026-10-11", "weekday": "Sun",
     "title": "Temporal cross-validation and re-test", "minutes": 180,
     "why": "You missed Q6, and your headline CV result (the 51% overestimate) is a temporal-CV result.",
     "lesson": """
@@ -509,13 +509,13 @@ When the question is "does it work on a new cow, patient, or user?", keep every 
 The naive 70/15/15 split put frames seconds apart into train and test. Those frames show the same cow in nearly the same place and posture, so the 17-class YOLO "recognized" cows by memorizing positions. Testing on a separate 2-hour period with different lighting removed that shortcut: mAP@0.5 fell from 0.987 to 0.481. That's the answer you need to give fluently in interviews.
 """,
     "files": [
-        lab("day07", "temporal_cv.py"),
+        lab("day07", "temporal_cv.py", task=1),
     ],
     "tasks": [
         "Read the [scikit-learn cross-validation guide](https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-of-time-series-data) (TimeSeriesSplit, GroupKFold)",
         "temporal_cv.py: shuffled KFold vs TimeSeriesSplit on an autocorrelated series",
         "Write and record a 2-minute explanation of the 51% MmCows overestimate",
-        "Take the Week 1 re-test in the Re-test tab (target 8/10)",
+        "Beat the Week 1 boss: the re-test after the quiz (target 8/10)",
         "Weekly retro: tick the tracker; [send Claude](https://claude.ai) your progress for Week 3's plan",
     ],
     "done_when": "8/10 on the re-test. Below 8: redo the missed topics on Mon-Tue of Week 2.",

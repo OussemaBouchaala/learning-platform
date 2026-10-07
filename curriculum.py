@@ -9,7 +9,7 @@ from lab_files import lab
 PROJECT = "Document extraction service: messy real estate listings (Arabic, French, English) to clean JSON."
 
 DAY8 = {
-    "id": "w2d1", "folder": "day08", "date": "2026-10-12", "weekday": "Mon",
+    "id": "w2d1", "folder": "day08", "notes_task": 4, "date": "2026-10-12", "weekday": "Mon",
     "title": "First LLM API calls", "minutes": 75,
     "why": "Everything in Phase 1 sits on this: prompts, tokens, and cost.",
     "lesson": """
@@ -41,7 +41,7 @@ Read API keys from environment variables, never paste them into files you commit
 Start Bench from the same terminal after setting it, so your scripts can read it.
 """,
     "files": [
-        lab("day08", "llm_basics.py"),
+        lab("day08", "llm_basics.py", task=3),
     ],
     "tasks": [
         "Create an API account with a small prepaid credit ([Anthropic Console](https://console.anthropic.com) or [OpenAI Platform](https://platform.openai.com)); read its quickstart ([Anthropic](https://docs.anthropic.com/en/docs/get-started), [OpenAI](https://platform.openai.com/docs/quickstart))",
@@ -61,7 +61,7 @@ Start Bench from the same terminal after setting it, so your scripts can read it
 }
 
 DAY9 = {
-    "id": "w2d2", "folder": "day09", "date": "2026-10-13", "weekday": "Tue",
+    "id": "w2d2", "folder": "day09", "notes_task": 3, "date": "2026-10-13", "weekday": "Tue",
     "title": "Structured output", "minutes": 75,
     "why": "Real systems need JSON they can trust, not free text.",
     "lesson": """
@@ -95,7 +95,7 @@ Parse with `json` or Pydantic. `eval()` on generated text would execute whatever
 """,
     "files": [
         lab("day09", "listings.json"),
-        lab("day09", "structured.py"),
+        lab("day09", "structured.py", task=[1, 2]),
     ],
     "tasks": [
         "Collect 10 real listings (e.g. [Tayara](https://www.tayara.tn), [Mubawab](https://www.mubawab.tn)) and hand-label price, surface, rooms, city",
@@ -195,7 +195,7 @@ uvicorn service:app --port 8002 --reload
 ```
 """,
     "files": [
-        lab("day11", "service.py"),
+        lab("day11", "service.py", task=[0, 1]),
         lab("day11", "concurrency_check.py"),
     ],
     "tasks": [
@@ -278,9 +278,9 @@ volumes:
 Problem, architecture sketch, results table, one-command run instructions, and what you'd improve.
 """,
     "files": [
-        lab("day13", "Dockerfile"),
-        lab("day13", "docker-compose.yml"),
-        lab("day13", "README.md"),
+        lab("day13", "Dockerfile", task=0),
+        lab("day13", "docker-compose.yml", task=0),
+        lab("day13", "README.md", task=1),
     ],
     "tasks": [
         "Dockerfile and docker-compose.yml (API + Ollama), see the [Compose docs](https://docs.docker.com/compose/)",
@@ -324,7 +324,7 @@ for name, v in docs.items():
 A PostgreSQL extension that stores vectors in a column and searches them by distance, so your documents, metadata, and vectors live in one database you already know.
 """,
     "files": [
-        lab("day14", "embeddings_intro.py"),
+        lab("day14", "embeddings_intro.py", task=1),
     ],
     "tasks": [
         "Read about [embeddings](https://huggingface.co/blog/getting-started-with-embeddings) and cosine similarity; read the [pgvector README](https://github.com/pgvector/pgvector#readme)",

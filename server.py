@@ -5,6 +5,7 @@ Start it from your project's virtual environment so your code runs with your pac
 Then open http://127.0.0.1:8765
 """
 import base64
+import importlib
 import json
 import os
 import re
@@ -22,7 +23,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from curriculum import CURRICULUM
+import curriculum as curriculum_module
+import curriculum_week1
+import lab_files
 from lab_files import check_path
 
 ROOT = Path(__file__).resolve().parent
@@ -56,9 +59,17 @@ def index():
     return FileResponse(ROOT / "static" / "index.html")
 
 
+def load_curriculum():
+    """Re-read the curriculum on every page load, so a new week's plan, a branch switch
+    or an edited brief shows up after a browser refresh, without restarting Bench."""
+    for module in (lab_files, curriculum_week1, curriculum_module):
+        importlib.reload(module)
+    return curriculum_module.CURRICULUM
+
+
 @app.get("/api/curriculum")
 def curriculum():
-    return {"weeks": CURRICULUM, "lab_dir": str(LAB_DIR)}
+    return {"weeks": load_curriculum(), "lab_dir": str(LAB_DIR)}
 
 
 @app.get("/api/progress")
