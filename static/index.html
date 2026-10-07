@@ -264,7 +264,7 @@ main > * { min-width: 0; min-height: 0; }
 .checks .detail { display: block; margin: 4px 0 0; font: 12.5px/1.5 var(--mono); color: var(--err); white-space: pre-wrap; word-break: break-word; }
 .bench-rail { display: none; width: 40px; background: var(--editor); border: 0; color: var(--editor-text); writing-mode: vertical-rl; font-size: 13px; padding: 14px 0; letter-spacing: .04em; }
 .bench-rail:hover { background: #1B2B4C; }
-main.bench-collapsed { grid-template-columns: minmax(0, 1fr) 0 auto; }
+main.bench-collapsed { grid-template-columns: minmax(0, 1fr) auto; }
 main.bench-collapsed .bench { display: none; }
 main.bench-collapsed .bench-rail { display: block; }
 
@@ -419,7 +419,7 @@ function stepDone(d, key) {
 }
 function stepSub(d, key) {
   if (key === "practice") { const c = checkedLabs(d); return c.length ? `${c.filter(f => labPassed(d, f)).length}/${c.length}` : `${d.files.length}`; }
-  if (key === "quiz") { const q = P().quiz[d.id]; return q ? `${q.best}/${q.total}` : `${d.quiz.length} Qs`; }
+  if (key === "quiz") { const q = P().quiz[d.id]; return q ? `${q.best}/${q.total}` : `${d.quiz.length} Q${d.quiz.length === 1 ? "" : "s"}`; }
   if (key === "boss") { const r = P().retest[d.id]; return r ? `${r.best}/${r.total}` : "8/10 wins"; }
   if (key === "missions") { const t = (P().tasks[d.id] || []).filter(Boolean).length; return `${t}/${d.tasks.length}`; }
   return "";
@@ -640,7 +640,9 @@ function guidePractice() {
     <h2 class="title">${esc(f.title)}</h2>
     ${topic}${body ? md(body) : `<p>Follow the comments in the editor.</p>`}
     <div class="card">${f.has_check
-      ? (passed ? "<strong>✓ All checks pass.</strong> On to the next one." : "Fill in each <code>...</code> in the editor, <strong>Run</strong> to see it work, then <strong>Check</strong> to see what's right and what's missing.")
+      ? (passed ? "<strong>✓ All checks pass.</strong> On to the next one."
+        : f.name.endsWith(".py") ? "Fill in each <code>...</code> in the editor, <strong>Run</strong> to see it work, then <strong>Check</strong> to see what's right and what's missing."
+        : "Replace each TODO in the editor, then press <strong>Check</strong>.")
       : "No automatic checks here: follow the steps, then move on."}</div>
     ${nextBar(last ? (stepDone(d, "practice") ? "" : "You can move on and come back to unfinished labs any time.") : "",
       last ? nextLabel() : `Next exercise: ${esc(d.files[S.ex + 1].title)} →`, passed || !f.has_check)}
