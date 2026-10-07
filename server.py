@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent
 LAB_DIR = Path(os.environ.get("LAB_DIR", ROOT.parent / "ml-fundamentals-lab")).resolve()
 PROGRESS_FILE = ROOT / "progress.json"
 RUN_TIMEOUT = int(os.environ.get("RUN_TIMEOUT", "60"))
-PORT = int(os.environ.get("PORT", "8765"))
+PORT = int(os.environ.get("PORT", "8766"))
 
 DAY_RE = re.compile(r"^day\d{2}$")
 NAME_RE = re.compile(r"^[\w\-. ]+$")
