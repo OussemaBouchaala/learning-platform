@@ -1,4 +1,7 @@
-"""Week 1: Fundamentals + GitHub (Oct 5-11, 2026)."""
+"""Week 1: Fundamentals + GitHub (Oct 5-11, 2026).
+
+Exercise starters and checks live in labs/dayNN/ (see lab_files.py)."""
+from lab_files import lab
 
 DAY1 = {
     "id": "w1d1", "folder": "day01", "date": "2026-10-05", "weekday": "Mon",
@@ -73,73 +76,10 @@ print(d)
 ```
 """,
     "files": [
-        {"name": "defaults.py", "starter": """# Part A: reproduce and fix the mutable default bug
-# For each step, write your PREDICTION in the yellow box before running.
-
-# 1. Write add(x, items=[]). Call it three times, print each result,
-#    and print add.__defaults__ after each call.
-
-
-# 2. Write the fixed version (items=None) and show three independent lists.
-
-
-# 3. Realistic bug: log_request(user_id, history=[]) appends user_id and returns history.
-#    Simulate 3 requests from different users, show the leak, then fix it.
-"""},
-        {"name": "aliasing.py", "starter": """# Part B: aliasing with id()
-
-# 1. Create a list, assign it to a second name, mutate through the second name.
-#    Print both names and their id().
-
-
-# 2. Same with .copy(): show the ids differ.
-
-
-# 3. With b as an alias of a, compare:
-#      b += [5]      vs      b = b + [5]
-#    Predict what happens to a in each case BEFORE running.
-"""},
-        {"name": "copies.py", "starter": """# Part C: shallow vs deep copy
-
-config = {"layers": [64, 32], "lr": 0.01}
-
-# 1. Make a shallow copy and a deep copy of config.
-
-
-# 2. Then: config["layers"].append(16) and config["lr"] = 0.1
-
-
-# 3. Print all three. In a comment, explain why the shallow copy changed
-#    for "layers" but not for "lr".
-"""},
-        {"name": "puzzles.py", "starter": """# Part D: predict, then run. Write your 4 predictions in the yellow box first.
-
-# Puzzle 1
-grid = [[0] * 3] * 3
-grid[0][0] = 1
-print(grid)
-
-# Puzzle 2
-def f(n, acc=[]):
-    acc = acc + [n]
-    return acc
-print(f(1), f(2))
-
-# Puzzle 3
-t = ([1, 2], 3)
-t[0].append(4)
-print(t)
-
-# Puzzle 4
-class Model:
-    layers = []
-    def add(self, layer):
-        self.layers.append(layer)
-
-m1, m2 = Model(), Model()
-m1.add("conv")
-print(m2.layers)
-"""},
+        lab("day01", "defaults.py"),
+        lab("day01", "aliasing.py"),
+        lab("day01", "copies.py"),
+        lab("day01", "puzzles.py"),
     ],
     "tasks": [
         "Read the Python FAQ entry on shared default values",
@@ -226,44 +166,8 @@ uvicorn app_async:app --port 8001
 ```
 """,
     "files": [
-        {"name": "app_async.py", "starter": """# Run this one in your TERMINAL, not with the Run button:
-#   cd day02
-#   uvicorn app_async:app --port 8001
-from fastapi import FastAPI
-
-app = FastAPI()
-
-# 1. GET /blocking   -> async def + time.sleep(2)
-# 2. GET /awaiting   -> async def + await asyncio.sleep(2)
-# 3. GET /threaded   -> plain def + time.sleep(2)
-# 4. GET /fixed      -> async def that runs time.sleep(2) via run_in_threadpool
-#    (from fastapi.concurrency import run_in_threadpool)
-"""},
-        {"name": "load_test.py", "starter": """# Run this with the Run button while app_async.py is running in your terminal.
-import asyncio
-import time
-
-import httpx
-
-BASE = "http://127.0.0.1:8001"
-ENDPOINTS = ["/blocking", "/awaiting", "/threaded", "/fixed"]
-
-
-async def hit(client, path, n=5):
-    # TODO: send n concurrent GET requests to path (asyncio.gather)
-    #       and return the total elapsed seconds.
-    ...
-
-
-async def main():
-    async with httpx.AsyncClient(base_url=BASE, timeout=30) as client:
-        for path in ENDPOINTS:
-            seconds = await hit(client, path)
-            print(f"{path:<10} {seconds}")
-
-
-asyncio.run(main())
-"""},
+        lab("day02", "app_async.py"),
+        lab("day02", "load_test.py"),
     ],
     "tasks": [
         "Read the FastAPI page on concurrency and async/await",
@@ -352,20 +256,9 @@ with timer("sum"):
 ```
 """,
     "files": [
-        {"name": "decorators.py", "starter": """# 1. Write @timed from memory (use functools.wraps). Apply it to two functions.
-# 2. Write @retry(times=3) that retries a function when it raises.
-#    Hint: a decorator WITH arguments needs one more level of nesting.
-"""},
-        {"name": "generators.py", "starter": """# 1. Create a CSV with 1,000,000 rows (write it from Python).
-# 2. Function A: read all lines into a list and sum one column.
-# 3. Function B: a generator that yields one row at a time; sum the same column.
-# 4. Measure peak memory of each with tracemalloc:
-#      import tracemalloc; tracemalloc.start(); ...; tracemalloc.get_traced_memory()
-"""},
-        {"name": "contexts.py", "starter": """# 1. Write a class-based Timer context manager (__enter__ / __exit__).
-# 2. Write the same with @contextmanager.
-# 3. Prove the cleanup runs even when the block raises an exception.
-"""},
+        lab("day03", "decorators.py"),
+        lab("day03", "generators.py"),
+        lab("day03", "contexts.py"),
     ],
     "tasks": [
         "Read the Real Python guides on decorators, generators, and the with statement",
@@ -434,15 +327,8 @@ For **bias**: add capacity or better features, reduce regularization, train long
 Plot train and validation scores as the training set grows. If validation keeps rising toward train, more data will help (variance). If both plateau low and close together, more data won't help (bias).
 """,
     "files": [
-        {"name": "poly_fit.py", "starter": """# Fit polynomials of degree 1, 4, 15 on noisy sin data with scikit-learn.
-# Use PolynomialFeatures + LinearRegression, train_test_split, and mean_squared_error.
-# Print train and validation MSE for each degree, then plot both vs degree (1..15).
-"""},
-        {"name": "learning_curves.py", "starter": """# Use sklearn.model_selection.learning_curve on a real dataset
-# (your Fake Reviews data, or sklearn.datasets.load_breast_cancer to start).
-# 1. Plot train vs validation score for a DecisionTreeClassifier with no depth limit.
-# 2. Repeat with max_depth=3. Describe how the gap changes.
-"""},
+        lab("day04", "poly_fit.py"),
+        lab("day04", "learning_curves.py"),
     ],
     "tasks": [
         "Read the ML Crash Course overfitting module and watch StatQuest on bias and variance",
@@ -498,16 +384,8 @@ print("f1", f1_score(y_true, y_pred, zero_division=0))
 Classifiers output probabilities; 0.5 is just a default. Raising the threshold usually raises precision and lowers recall. Pick it from the cost of each error: missing fraud costs more than a false alarm.
 """,
     "files": [
-        {"name": "imbalance.py", "starter": """# 1. make_classification(n_samples=20000, weights=[0.995], random_state=0)
-# 2. Train a DummyClassifier(strategy="most_frequent") and a LogisticRegression.
-# 3. For both, print accuracy, precision, recall, F1, ROC-AUC, PR-AUC
-#    (average_precision_score). Which metrics expose the dummy model?
-"""},
-        {"name": "threshold.py", "starter": """# Using the LogisticRegression from imbalance.py:
-# 1. Get predict_proba scores on the test set.
-# 2. Plot the precision-recall curve (precision_recall_curve).
-# 3. Find the threshold that gives recall >= 0.8 with the best precision.
-"""},
+        lab("day05", "imbalance.py"),
+        lab("day05", "threshold.py"),
     ],
     "tasks": [
         "Read the scikit-learn model evaluation guide; watch StatQuest on ROC and AUC",
@@ -574,16 +452,8 @@ A feature that is only known after, or because of, the label. Example: predictin
 Put every fitted step inside a `Pipeline` and pass the pipeline to cross-validation. Each fold then fits preprocessing on its own training part only. For SMOTE, use `imblearn.pipeline.Pipeline`.
 """,
     "files": [
-        {"name": "leakage_scaler.py", "starter": """# 1. Load a dataset (load_breast_cancer, or your own).
-# 2. WRONG: StandardScaler().fit_transform(X), then cross_val_score on a KNN classifier.
-# 3. RIGHT: make_pipeline(StandardScaler(), KNeighborsClassifier()) in cross_val_score.
-# 4. Print both. Then repeat with SelectKBest instead of a scaler and compare the gap.
-"""},
-        {"name": "target_leakage.py", "starter": """# 1. Build a synthetic dataset where one feature is computed from the label
-#    (e.g. leak = y + small noise).
-# 2. Show the inflated score with the leak, and the honest score without it.
-# 3. In a comment, name one real-world example of target leakage from your own work.
-"""},
+        lab("day06", "leakage_scaler.py"),
+        lab("day06", "target_leakage.py"),
     ],
     "tasks": [
         "Read scikit-learn's Common pitfalls page (data leakage section)",
@@ -639,11 +509,7 @@ When the question is "does it work on a new cow, patient, or user?", keep every 
 The naive 70/15/15 split put frames seconds apart into train and test. Those frames show the same cow in nearly the same place and posture, so the 17-class YOLO "recognized" cows by memorizing positions. Testing on a separate 2-hour period with different lighting removed that shortcut: mAP@0.5 fell from 0.987 to 0.481. That's the answer you need to give fluently in interviews.
 """,
     "files": [
-        {"name": "temporal_cv.py", "starter": """# 1. Build an autocorrelated series: a random walk plus seasonality, with lag features.
-# 2. Score a RandomForestRegressor with KFold(shuffle=True) and with TimeSeriesSplit.
-# 3. Print both and explain the gap in a comment.
-# 4. Bonus: add a group column and show GroupKFold keeps groups apart.
-"""},
+        lab("day07", "temporal_cv.py"),
     ],
     "tasks": [
         "Read the scikit-learn cross-validation guide (TimeSeriesSplit, GroupKFold)",

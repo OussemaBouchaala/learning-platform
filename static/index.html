@@ -201,6 +201,25 @@ aside { border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 0; 
 .compare .actual { background: var(--paper); border: 1px solid var(--line); }
 .compare b { display: block; font-family: var(--sans); font-size: 12px; margin-bottom: 2px; }
 .empty { color: var(--ink-soft); font-size: 14px; }
+
+/* Check results */
+.file .tick { color: #7FD8A6; margin-left: 5px; }
+.checks-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; font-size: 14px; }
+.checks-head b { font-size: 15px; }
+.checks-head.all b { color: var(--ok); }
+.checks-head.some b { color: var(--err); }
+.checks { list-style: none; margin: 0; padding: 0; }
+.checks li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.checks li:last-child { border-bottom: 0; }
+.checks .icon { font-weight: 600; text-align: center; }
+.checks .pass .icon { color: var(--ok); }
+.checks .fail .icon { color: var(--err); }
+.checks .hint { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+.checks .detail { display: block; margin: 4px 0 0; font: 12.5px/1.5 var(--mono); color: var(--err); white-space: pre-wrap; word-break: break-word; }
+.match-line { display: block; }
+.match-line.hit::before { content: "\2713  "; color: var(--ok); }
+.match-line.miss::before { content: "\2717  "; color: var(--err); }
+.match-sum { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
 .locked { padding: 28px; color: var(--ink-soft); max-width: 60ch; }
 .locked code { font-family: var(--mono); font-size: 13px; background: var(--paper); padding: 2px 6px; border-radius: 3px; color: var(--ink); }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 9px 16px; border-radius: var(--r-md); font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
@@ -260,7 +279,7 @@ async function api(path, body) {
 const P = () => S.progress;
 function ensureProgress() {
   const p = S.progress;
-  for (const k of ["tasks", "weekTasks", "quiz", "retest", "predictions"]) p[k] ??= {};
+  for (const k of ["tasks", "weekTasks", "quiz", "retest", "predictions", "checks"]) p[k] ??= {};
   p.activity ??= []; p.settings ??= { predictFirst: true }; p.last ??= {};
 }
 let saveProgressTimer;
@@ -546,20 +565,23 @@ function renderWork() {
   const remembered = P().last.file && d.files.find(f => f.name === P().last.file);
   S.file = (remembered || d.files[0])?.name;
   $("#work").innerHTML = `
-    <div class="files" role="tablist">${d.files.map(f => `<button class="file" role="tab" data-file="${f.name}" aria-selected="${f.name === S.file}">${f.name}</button>`).join("")}</div>
+    <div class="files" role="tablist">${d.files.map(f => `<button class="file" role="tab" data-file="${f.name}" aria-selected="${f.name === S.file}">${f.name}${checkTick(d, f)}</button>`).join("")}</div>
     <div class="editor-wrap" id="editorWrap"></div>
     <div class="predict" id="predictBox"><label for="predict">Your prediction <span>Write what you expect before you run</span></label>
       <textarea id="predict" placeholder="Expected output, error, or timing…"></textarea></div>
     <div class="actions">
       <button class="btn primary" id="runBtn">Run</button>
+      <button class="btn" id="checkBtn" title="Run the automatic checks for this exercise (Ctrl+Shift+Enter)">Check</button>
       <button class="btn" id="resetBtn">Reset to starter</button>
       <label style="font-size:13px;display:flex;gap:5px;align-items:center"><input type="checkbox" id="pf" ${P().settings.predictFirst ? "checked" : ""}>Predict before running</label>
       <span class="save-state" id="saveState"></span>
-      <span class="hint">Ctrl+Enter runs. Files save to ${d.folder}/</span>
+      <span class="hint">Ctrl+Enter runs, Ctrl+Shift+Enter checks. Files save to ${d.folder}/</span>
     </div>
-    <div class="output" id="output"><div class="empty">Output appears here. Write a prediction first: comparing it with the real output is where the learning happens.</div></div>`;
+    <div class="output" id="output"><div class="empty">Output appears here. Write a prediction first: comparing it with the real output is where the learning happens.
+      When you think your code is done, press <b>Check</b> to see what's right and what's missing.</div></div>`;
   $(".files").onclick = e => { const b = e.target.closest(".file"); if (b) openFile(b.dataset.file); };
   $("#runBtn").onclick = runCurrent;
+  $("#checkBtn").onclick = checkCurrent;
   $("#resetBtn").onclick = resetFile;
   $("#pf").onchange = e => { P().settings.predictFirst = e.target.checked; saveProgress(); updateRunState(); };
   $("#predict").oninput = e => { P().predictions[`${d.folder}/${S.file}`] = e.target.value; saveProgress(); updateRunState(); };
@@ -572,6 +594,7 @@ function mountEditor() {
     S.editor = CodeMirror(wrap, { lineNumbers: true, lineWrapping: true, indentUnit: 4, tabSize: 4, matchBrackets: true,
       extraKeys: { "Ctrl-Enter": runCurrent, "Cmd-Enter": runCurrent, "Ctrl-S": () => saveFile(true), "Cmd-S": () => saveFile(true),
         Tab: cm => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("    ") } });
+    S.editor.addKeyMap({ "Shift-Ctrl-Enter": checkCurrent, "Shift-Cmd-Enter": checkCurrent });
     S.editor.on("change", (_, ch) => { if (ch.origin !== "setValue") scheduleSave(); });
   } else {
     const ta = document.createElement("textarea"); ta.className = "fallback-editor"; ta.spellcheck = false; wrap.appendChild(ta);
@@ -579,7 +602,7 @@ function mountEditor() {
     ta.oninput = scheduleSave;
     ta.onkeydown = e => {
       if (e.key === "Tab") { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText("    ", s, ta.selectionEnd, "end"); }
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") runCurrent();
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") e.shiftKey ? checkCurrent() : runCurrent();
     };
   }
 }
@@ -606,6 +629,8 @@ function updateRunState() {
   const btn = $("#runBtn");
   btn.disabled = !isPy || needPred;
   btn.title = !isPy ? "Only Python files run here" : needPred ? "Write a prediction first (or untick 'Predict before running')" : "Run (Ctrl+Enter)";
+  const f = S.day.files.find(x => x.name === S.file);
+  $("#checkBtn").hidden = !f?.has_check;
 }
 let saveTimer;
 function scheduleSave() { $("#saveState").textContent = "Unsaved"; clearTimeout(saveTimer); saveTimer = setTimeout(saveFile, 700); }
@@ -626,8 +651,7 @@ async function runCurrent() {
   try {
     const r = await api("/api/run", { day: S.day.folder, name: S.file, code: S.editor.getValue() });
     const pred = $("#predict").value.trim();
-    $("#output").innerHTML = (pred ? `<div class="compare"><div class="yours"><b>You predicted</b>${esc(pred)}</div>
-      <div class="actual"><b>Actual output</b>${esc(r.stdout.trim().slice(0, 1200) || (r.stderr ? "(error, see below)" : "(no output)"))}</div></div>` : "") + renderResult(r, !!pred);
+    $("#output").innerHTML = (pred ? compareHTML(pred, r) : "") + renderResult(r, !!pred);
     $("#saveState").textContent = "Saved"; logActivity();
   } catch (e) { $("#output").innerHTML = `<pre class="stderr">${esc(e.message)}\nIs the Bench server still running in your terminal?</pre>`; }
   btn.textContent = "Run"; updateRunState();
@@ -639,6 +663,45 @@ function renderResult(r, compared) {
     ${r.stderr ? `<pre class="stderr">${esc(r.stderr)}</pre>` : ""}
     ${r.images.map(b => `<img alt="Plot from your script" src="data:image/png;base64,${b}">`).join("")}
     ${!r.stdout && !r.stderr && !r.images.length ? `<div class="empty">No output. Add print() calls to see results.</div>` : ""}`;
+}
+
+/* Prediction vs output, line by line: whitespace-insensitive, so "[1,2]" matches "[1, 2]". */
+function compareHTML(pred, r) {
+  const norm = l => l.replace(/\s+/g, "");
+  const actual = r.stdout.trim().slice(0, 1200);
+  const want = pred.split("\n").filter(l => l.trim()), got = actual.split("\n").filter(l => l.trim());
+  let hits = 0;
+  const yours = want.map((l, i) => { const ok = got[i] !== undefined && norm(l) === norm(got[i]); hits += ok; return `<span class="match-line ${ok ? "hit" : "miss"}">${esc(l)}</span>`; }).join("");
+  const sum = got.length ? `<span class="match-sum">${hits}/${got.length} output line${got.length === 1 ? "" : "s"} predicted exactly</span>` : "";
+  return `<div class="compare"><div class="yours"><b>You predicted</b>${yours}${sum}</div>
+    <div class="actual"><b>Actual output</b>${esc(actual || (r.stderr ? "(error, see below)" : "(no output)"))}</div></div>`;
+}
+
+/* ---------- Checks ---------- */
+const checkKey = (d, name) => `${d.folder}/${name}`;
+function checkTick(d, f) {
+  const c = f.has_check && P().checks[checkKey(d, f.name)];
+  return c && c.passed === c.total ? `<span class="tick" title="All checks passed">✓</span>` : "";
+}
+async function checkCurrent() {
+  const f = S.day.files.find(x => x.name === S.file); if (!f?.has_check) return;
+  const btn = $("#checkBtn"); btn.disabled = true; btn.textContent = "Checking…";
+  $("#output").innerHTML = `<div class="empty">Checking ${esc(S.file)}…</div>`;
+  try {
+    const r = await api("/api/check", { day: S.day.folder, name: S.file, code: S.editor.getValue() });
+    const passed = r.results.filter(c => c.ok).length, total = r.results.length, all = passed === total;
+    P().checks[checkKey(S.day, S.file)] = { passed, total, at: new Date().toISOString() };
+    saveProgress(); logActivity();
+    $("#output").innerHTML = `<div class="checks-head ${all ? "all" : "some"}"><b>${passed}/${total} checks passed</b>
+      <span>${all ? "Everything checked is correct." : "Fix the first ✗ and check again."}</span><span class="out-meta">${r.seconds}s</span></div>
+      <ul class="checks">${r.results.map(c => `<li class="${c.ok ? "pass" : "fail"}"><span class="icon">${c.ok ? "✓" : "✗"}</span>
+        <span>${inline(c.label)}${!c.ok && c.hint ? `<span class="hint">${inline(c.hint)}</span>` : ""}${!c.ok && c.detail ? `<span class="detail">${esc(c.detail)}</span>` : ""}</span></li>`).join("")}</ul>`;
+    const tab = document.querySelector(`.file[data-file="${CSS.escape(S.file)}"]`);
+    if (tab) tab.innerHTML = esc(S.file) + checkTick(S.day, f);
+    $("#saveState").textContent = "Saved";
+    if (all) toast("All checks passed");
+  } catch (e) { $("#output").innerHTML = `<pre class="stderr">${esc(e.message)}\nIs the Bench server still running in your terminal?</pre>`; }
+  btn.disabled = false; btn.textContent = "Check";
 }
 
 /* ---------- Boot ---------- */

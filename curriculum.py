@@ -4,6 +4,7 @@ To add next week's daily plan: append day dicts to that week's "days" list
 (same shape as Week 1), or replace the file Claude sends you on Sunday.
 """
 from curriculum_week1 import WEEK1
+from lab_files import lab
 
 PROJECT = "Document extraction service: messy real estate listings (Arabic, French, English) to clean JSON."
 
@@ -40,17 +41,7 @@ Read API keys from environment variables, never paste them into files you commit
 Start Bench from the same terminal after setting it, so your scripts can read it.
 """,
     "files": [
-        {"name": "llm_basics.py", "starter": """# Week 2 project: """ + PROJECT + """
-import os
-
-API_KEY = os.environ.get("LLM_API_KEY")
-assert API_KEY, "Set LLM_API_KEY in your terminal, then restart Bench."
-
-# 1. Using your provider's Python SDK (see its quickstart), send one message
-#    with a system prompt. Print the reply and the input/output token counts.
-# 2. Send the same prompt at temperature 0 three times, then at 1.0 three times.
-# 3. Log tokens and cost for every call using your provider's prices.
-"""},
+        lab("day08", "llm_basics.py"),
     ],
     "tasks": [
         "Create an API account with a small prepaid credit; read its quickstart",
@@ -103,22 +94,8 @@ When validation fails, send the error back to the model and ask for a corrected 
 Parse with `json` or Pydantic. `eval()` on generated text would execute whatever it contains.
 """,
     "files": [
-        {"name": "listings.json", "starter": """[
-  {"text": "PASTE A REAL LISTING HERE", "label": {"price_tnd": null, "surface_m2": null, "rooms": null, "city": null}}
-]
-"""},
-        {"name": "structured.py", "starter": """import json
-from pydantic import BaseModel
-
-# 1. Fill listings.json with 10 real listings (Arabic, French, English)
-#    and your hand-written labels.
-# 2. Define the Listing schema (see the lesson).
-# 3. For each listing: prompt the model for JSON only, validate with Pydantic,
-#    and on failure retry once with the validation error in the prompt.
-# 4. Print how many passed first time, after retry, and failed.
-
-listings = json.load(open("listings.json", encoding="utf-8"))
-"""},
+        lab("day09", "listings.json"),
+        lab("day09", "structured.py"),
     ],
     "tasks": [
         "Collect 10 real listings and hand-label price, surface, rooms, city",
@@ -173,16 +150,7 @@ Local models are usually quantized (for example 4-bit), cutting memory several t
 The first call loads the model into memory, so it's much slower than the next ones. Measure after a warm-up call.
 """,
     "files": [
-        {"name": "local_model.py", "starter": """import time
-import httpx
-
-MODEL = "qwen2.5:3b"   # change to what your machine can run
-
-# 1. Warm up the model with one call.
-# 2. Run your 10 listings from day09 through the local model (format="json").
-# 3. Record latency per call and field accuracy against your labels.
-# 4. Compare with your API model results from yesterday.
-"""},
+        lab("day10", "local_model.py"),
     ],
     "tasks": [
         "Install Ollama and pull a small Qwen2.5 model",
@@ -227,27 +195,8 @@ uvicorn service:app --port 8002 --reload
 ```
 """,
     "files": [
-        {"name": "service.py", "starter": """# Run in your TERMINAL: uvicorn service:app --port 8002 --reload
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import httpx
-
-app = FastAPI()
-
-
-class ExtractIn(BaseModel):
-    text: str
-    model: str = "local"   # "local" or "api"
-
-
-# TODO: POST /extract
-#  - async def, httpx.AsyncClient for the model call
-#  - validate the model output with your Listing schema
-#  - 502 if the output fails validation after one retry, 504 on timeout
-"""},
-        {"name": "concurrency_check.py", "starter": """# Reuse your Day 2 load test: fire 5 concurrent /extract requests at port 8002
-# and confirm they don't run one after another.
-"""},
+        lab("day11", "service.py"),
+        lab("day11", "concurrency_check.py"),
     ],
     "tasks": [
         "POST /extract with async model calls",
@@ -285,9 +234,7 @@ print("mean", round(statistics.mean(latencies), 2), "p50", round(q[49], 2), "p95
 Run each input 3 times to see variance.
 """,
     "files": [
-        {"name": "measure.py", "starter": """# Call your running service (port 8002) for all 10 listings, both models, 3 runs each.
-# Output one table: model | field accuracy | p50 latency | p95 latency | cost per 1k requests
-"""},
+        lab("day12", "measure.py"),
     ],
     "tasks": [
         "measure.py: both models, 10 listings, 3 runs",
@@ -331,19 +278,9 @@ volumes:
 Problem, architecture sketch, results table, one-command run instructions, and what you'd improve.
 """,
     "files": [
-        {"name": "Dockerfile", "starter": """# TODO: python:3.11-slim base, install requirements, copy service.py,
-# run uvicorn on 0.0.0.0:8002
-"""},
-        {"name": "docker-compose.yml", "starter": """# TODO: api + ollama services (see the lesson)
-"""},
-        {"name": "README.md", "starter": """# LLM Extraction Service
-
-## Problem
-## Architecture
-## Results
-## Run it
-## What I'd improve
-"""},
+        lab("day13", "Dockerfile"),
+        lab("day13", "docker-compose.yml"),
+        lab("day13", "README.md"),
     ],
     "tasks": [
         "Dockerfile and docker-compose.yml (API + Ollama)",
@@ -387,10 +324,7 @@ for name, v in docs.items():
 A PostgreSQL extension that stores vectors in a column and searches them by distance, so your documents, metadata, and vectors live in one database you already know.
 """,
     "files": [
-        {"name": "embeddings_intro.py", "starter": """# 1. Implement cosine similarity yourself (no sklearn).
-# 2. Make 5 toy 'documents' as vectors and rank them against a query vector.
-# 3. Write down: which Arabic corpus will you use for Weeks 3-6, and where is it?
-"""},
+        lab("day14", "embeddings_intro.py"),
     ],
     "tasks": [
         "Read about embeddings and cosine similarity; read the pgvector README",

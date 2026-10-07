@@ -23,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from curriculum import CURRICULUM
+from lab_files import check_path
 
 ROOT = Path(__file__).resolve().parent
 LAB_DIR = Path(os.environ.get("LAB_DIR", ROOT.parent / "ml-fundamentals-lab")).resolve()
@@ -156,6 +157,55 @@ def run(body: RunIn):
         "images": images,
         "python": sys.executable,
     }
+
+
+class CheckIn(BaseModel):
+    day: str
+    name: str
+    code: str
+
+
+CHECK_MARK = "@@BENCH_CHECKS@@"
+
+
+@app.post("/api/check")
+def check(body: CheckIn):
+    """Save the file, run it, then run its check script. Returns one result per check."""
+    if not DAY_RE.match(body.day):
+        raise HTTPException(400, "Invalid day folder.")
+    checks = check_path(body.day, body.name)
+    if not checks.exists():
+        raise HTTPException(404, "This file has no checks.")
+    target = safe_path(body.day, body.name)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(body.code, encoding="utf-8")
+
+    env = {**os.environ, "MPLBACKEND": "Agg", "PYTHONIOENCODING": "utf-8", "PYTHONUNBUFFERED": "1"}
+    start = time.perf_counter()
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "checker.py"), str(target), str(checks)],
+            cwd=target.parent, capture_output=True, text=True, encoding="utf-8",
+            errors="replace", timeout=RUN_TIMEOUT, env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return {"results": [{"label": "Checks finished in time", "ok": False,
+                             "detail": f"Stopped after {RUN_TIMEOUT}s.",
+                             "hint": "Look for an endless loop, or code that waits for a server."}],
+                "seconds": RUN_TIMEOUT}
+    elapsed = round(time.perf_counter() - start, 3)
+
+    payload = None
+    for line in reversed(proc.stdout.splitlines()):
+        if line.startswith(CHECK_MARK):
+            payload = json.loads(line[len(CHECK_MARK):])
+            break
+    if payload is None:
+        return {"results": [{"label": "Checks ran", "ok": False,
+                             "detail": (proc.stderr or proc.stdout)[-3000:] or "No result from the checker."}],
+                "seconds": elapsed}
+    return {"results": payload["results"], "stdout": payload.get("stdout", ""),
+            "stderr": proc.stderr[-5000:], "seconds": elapsed}
 
 
 if __name__ == "__main__":
