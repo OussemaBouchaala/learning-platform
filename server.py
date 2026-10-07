@@ -27,7 +27,10 @@ from lab_files import check_path
 
 ROOT = Path(__file__).resolve().parent
 LAB_DIR = Path(os.environ.get("LAB_DIR", ROOT.parent / "ml-fundamentals-lab")).resolve()
-PROGRESS_FILE = ROOT / "progress.json"
+# Your progress is personal data that changes every minute, so it lives in a file git
+# ignores. progress.json (tracked) is only read once, to carry old progress over.
+PROGRESS_FILE = ROOT / "progress.local.json"
+LEGACY_PROGRESS_FILE = ROOT / "progress.json"
 RUN_TIMEOUT = int(os.environ.get("RUN_TIMEOUT", "60"))
 PORT = int(os.environ.get("PORT", "8766"))
 
@@ -60,8 +63,9 @@ def curriculum():
 
 @app.get("/api/progress")
 def get_progress():
-    if PROGRESS_FILE.exists():
-        return json.loads(PROGRESS_FILE.read_text(encoding="utf-8"))
+    for path in (PROGRESS_FILE, LEGACY_PROGRESS_FILE):
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
     return {}
 
 
