@@ -388,6 +388,8 @@ const weekOfDay = id => S.weeks.findIndex(w => w.days.some(d => d.id === id));
 const checkKey = (d, name) => `${d.folder}/${name}`;
 const labPassed = (d, f) => { const c = P().checks[checkKey(d, f.name)]; return !!(c && c.passed === c.total); };
 const checkedLabs = d => d.files.filter(f => f.has_check);
+/* An exercise's name comes from its brief; fall back to the file name if a brief has no title. */
+const labTitle = f => f.title || f.name;
 
 function dayDone(d) { const t = P().tasks[d.id] || []; return d.tasks.length > 0 && d.tasks.every((_, i) => t[i]); }
 function weekCounts(w) {
@@ -628,7 +630,7 @@ function guideLearn() {
 
 function guidePractice() {
   const d = S.day, f = d.files[S.ex];
-  const dots = d.files.map((x, i) => `<button class="ex-dot ${i === S.ex ? "current" : ""} ${labPassed(d, x) ? "passed" : ""}" data-ex="${i}" title="${esc(x.title)}">${labPassed(d, x) && i !== S.ex ? "✓" : i + 1}</button>`).join("");
+  const dots = d.files.map((x, i) => `<button class="ex-dot ${i === S.ex ? "current" : ""} ${labPassed(d, x) ? "passed" : ""}" data-ex="${i}" title="${esc(labTitle(x))}">${labPassed(d, x) && i !== S.ex ? "✓" : i + 1}</button>`).join("");
   const lines = (f.brief || "").split("\n");
   const hasTopic = lines[0]?.startsWith("**Topic:**");
   const topic = hasTopic ? `<div class="topic">${blocks(lines[0])}</div>` : "";
@@ -637,7 +639,7 @@ function guidePractice() {
   $("#guide").innerHTML = `<div class="guide-inner prose brief">
     <p class="kicker">Step 2 · Practice</p>
     <div class="ex-nav"><div class="ex-dots">${dots}</div><span class="ex-count">Exercise ${S.ex + 1} of ${d.files.length}</span></div>
-    <h2 class="title">${esc(f.title)}</h2>
+    <h2 class="title">${esc(labTitle(f))}</h2>
     ${topic}${body ? md(body) : `<p>Follow the comments in the editor.</p>`}
     <div class="card">${f.has_check
       ? (passed ? "<strong>✓ All checks pass.</strong> On to the next one."
@@ -645,7 +647,7 @@ function guidePractice() {
         : "Replace each TODO in the editor, then press <strong>Check</strong>.")
       : "No automatic checks here: follow the steps, then move on."}</div>
     ${nextBar(last ? (stepDone(d, "practice") ? "" : "You can move on and come back to unfinished labs any time.") : "",
-      last ? nextLabel() : `Next exercise: ${esc(d.files[S.ex + 1].title)} →`, passed || !f.has_check)}
+      last ? nextLabel() : `Next exercise: ${esc(labTitle(d.files[S.ex + 1]))} →`, passed || !f.has_check)}
   </div>`;
   $(".ex-dots").onclick = e => { const b = e.target.closest(".ex-dot"); if (b) selectExercise(+b.dataset.ex); };
   $("#nextBtn").onclick = () => last ? goNext() : selectExercise(S.ex + 1);
@@ -761,7 +763,7 @@ async function syncBench() {
   const { name, lab } = benchTarget();
   const isPyLab = !!lab && name.endsWith(".py");
   $("#benchChip").textContent = lab ? `Exercise ${S.ex + 1}` : "Scratchpad";
-  $("#benchLabel").innerHTML = lab ? `${esc(lab.title)}<small>follow the comments</small>` : `Test any idea here<small>not graded</small>`;
+  $("#benchLabel").innerHTML = lab ? `${esc(labTitle(lab))}<small>follow the comments</small>` : `Test any idea here<small>not graded</small>`;
   $("#benchHint").textContent = lab ? (name.endsWith(".py") ? "Ctrl+Enter runs · Ctrl+Shift+Enter checks" : "Check reads this file") : "Ctrl+Enter runs";
   $("#pfWrap").hidden = !isPyLab;
   $("#pf").checked = !!P().settings.predictFirst;
